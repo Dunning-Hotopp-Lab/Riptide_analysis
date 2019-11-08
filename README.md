@@ -13,7 +13,7 @@ R scripts were run using Windows 10 x64 with RStudio v1.1.463 using this R sessi
 R version 3.5.1 (2018-07-02)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 Running under: Windows 10 x64 (build 18362)
-
+```
 ## Installation
 Requirements for installed packages are available in Supplementary Files. 
 
