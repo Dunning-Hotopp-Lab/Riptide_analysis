@@ -82,28 +82,31 @@ cat header.txt data.txt | sed -e "s/ /\t/g" > depth+GCstats.txt
 Run scripts/Riptide.FileS3.Rmd using sample_data_files/Acinetobacter_depthvsGC.txt
 
 ### Riptide contamination analysis <a name="contam"></a>  
+**Filter 1: Species assignment, retain primary reads**
 *Map reads to reference containing combined genomes from all organisms in Riptide experiment*  
 bwa mem -k 23 -M combined.reference.fasta R1.fastq.gz R2.fastq.gz | samtools view -bho mapped.bam  
 *Sort BAM with samtools*  
 samtools sort -m 2G -o sorted.bam mapped.bam  
 *Mark duplicates with PicardTools*  
 java -Xmx2g -jar picard.jar MarkDuplicates I=sorted.bam O=dupsmarked.bam M=dupsmetrics.txt  
-*Filter 1: Species assignment, retain primary reads*  
+*Assign reads to species*  
 samtools view -F 4 -F 256 -F 1024 -F 2048 -bho primary.bam dupsmarked.bam  
 samtools view primary.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
 Species assignment files were compiled for all libraries, with an additional row added containing numbers corresponding to the well position of each sample on the Riptide plate  
 *Visualization*  
 Run scripts/Riptide.FileS4 using sample_data_files/contamination.txt  
-*Filter2: Species assignment, retain primary, non- multimapped reads*  
+
+**Filter2: Species assignment, retain primary, non- multimapped reads**  
 samtools view -h -F 4 -F 256 -F 1024 -F 2048 dupsmarked.bam | grep -v -e 'XA:Z:' -e 'SA:Z:' | samtools view -bh - > filter_multimap.bam  
 samtools view filter_multimap.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
 Compilation of data and visualization was performed as described above  
-*Filter 3: Species assignment, retain primary reads with MAPQ > 30*  
+
+**Filter 3: Species assignment, retain primary reads with MAPQ > 30** 
 samtools view -h -F 4 -F 256 -F 1024 -F 2048 -q 30 dupsmarked.bam | samtools view -bh - > filter_lowMAPQ.bam  
 samtools view filter_lowMAPQ.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
 Compilation of data and visualization was performed as described above
 
-### De novo assemblies <a name="denovo"></a>
+### De novo assemblies <a name="denovo"></a>  
 **De novo assembly of readsets with SPAdes**  
 *Single paired end datasets*  
 spades.py -o SPAdes_output_dir --pe1-1 fwd.fastq --pe1-2 rev.fastq -m 200  
@@ -118,7 +121,7 @@ python run_busco.py -f -c 8 -t /local/scratch/etvedte/tmp -i contigs.fasta -o bu
 *Eukaryotes: conserved metazoa genes with BUSCO*  
 python run_busco.py -f -c 8 -t /local/scratch/etvedte/tmp -i contigs.fasta -o busco_output_dir -l metazoa_odb9 -m geno
 
-**Subsampling non-Riptide libraries**
+**Subsampling non-Riptide libraries**  
 *Retrieve 75% random sample of readsets using seqtk*  
 seqtk sample -s 13 fwd.fastq 0.75 > fwd.0.75.fastq  
 seqtk sample -s 13 rev.fastq 0.75 > rev.0.75.fastq  
