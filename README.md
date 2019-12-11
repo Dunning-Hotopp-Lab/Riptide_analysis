@@ -81,8 +81,27 @@ cat header.txt data.txt | sed -e "s/ /\t/g" > depth+GCstats.txt
 *Visualize depth vs. GC*
 Run scripts/Riptide.FileS3.Rmd using sample_data_files/Acinetobacter_depthvsGC.txt
 
-### Riptide contamination analysis <a name="contam"></a>
-
+### Riptide contamination analysis <a name="contam"></a>  
+*Map reads to reference containing combined genomes from all organisms in Riptide experiment*  
+bwa mem -k 23 -M combined.reference.fasta R1.fastq.gz R2.fastq.gz | samtools view -bho mapped.bam  
+*Sort BAM with samtools*  
+samtools sort -m 2G -o sorted.bam mapped.bam  
+*Mark duplicates with PicardTools*  
+java -Xmx2g -jar picard.jar MarkDuplicates I=sorted.bam O=dupsmarked.bam M=dupsmetrics.txt  
+*Filter 1: Species assignment, retain primary reads*  
+samtools view -F 4 -F 256 -F 1024 -F 2048 -bho primary.bam dupsmarked.bam  
+samtools view primary.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
+Species assignment files were compiled for all libraries, with an additional row added containing numbers corresponding to the well position of each sample on the Riptide plate  
+*Visualization*  
+Run scripts/Riptide.FileS4 using sample_data_files/contamination.txt  
+*Filter2: Species assignment, retain primary, non- multimapped reads*  
+samtools view -h -F 4 -F 256 -F 1024 -F 2048 dupsmarked.bam | grep -v -e 'XA:Z:' -e 'SA:Z:' | samtools view -bh - > filter_multimap.bam  
+samtools view filter_multimap.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
+Compilation of data and visualization was performed as described above  
+*Filter 3: Species assignment, retain primary reads with MAPQ > 30*  
+samtools view -h -F 4 -F 256 -F 1024 -F 2048 -q 30 dupsmarked.bam | samtools view -bh - > filter_lowMAPQ.bam  
+samtools view filter_lowMAPQ.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
+Compilation of data and visualization was performed as described above
 
 ### De novo assemblies <a name="denovo"></a>
 **De novo assembly of readsets with SPAdes**  
@@ -105,6 +124,24 @@ seqtk sample -s 13 fwd.fastq 0.75 > fwd.0.75.fastq
 seqtk sample -s 13 rev.fastq 0.75 > rev.0.75.fastq  
 Repeat to retrieve 50% and 25% of non-Riptide library reads.  
 Perform spades and QUAST as above with subsampled datasets.
+
+**Visualizing breakpoints in E. coli assemblies**
+*Align contigs to E. coli reference using nucmer (MUMmer3)*
+nucmer --prefix NCBI Ecoli_HS_genome.fasta ecoli.spades.contigs.fasta
+delta-filter -q NCBI.delta > NCBI.filter  
+show-coords -rb NCBI.filter > NCBI.filter.coords  
+awk '{print $11}' NCBI.filter.coords | tail -n +6 | sort -n | uniq > NCBI.match.list  
+xargs samtools faidx spades.contigs.fasta < NCBI.match.list >> matched_contigs.fasta  
+*Similar alignment using only contigs with match to NCBI reference*  
+nucmer --mum --minmatch 150 --prefix NCBI_match Ecoli_HS_genome.fasta matched_contigs.fasta  
+delta-filter -qr NCBI_match > NCBI_match.filter  
+show-coords -rb NCBI_match.filter > NCBI_match.coords  
+cat NCBI_match.coords | tail -n +6 | awk '{print $1"\t"$2}' > NCBI_start+end.coords  
+*Visualization*
+Run scripts/Riptide.FileS.Rmd using sample_data_files/ecoli.breaks.txt
+
+### Metagenome analysis <a name="meta"></a>
+
 
 ## System requirements
 
