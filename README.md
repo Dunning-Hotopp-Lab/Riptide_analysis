@@ -144,6 +144,25 @@ cat NCBI_match.coords | tail -n +6 | awk '{print $1"\t"$2}' > NCBI_start+end.coo
 Run scripts/Riptide.FileS.Rmd using sample_data_files/ecoli.breaks.txt
 
 ### Metagenome analysis <a name="meta"></a>
+**Raw read counts for metagenome libraries**
+*fastqc*  
+Read pair counts doubled to determine total reads for each library.  
+*Visualize counts*  
+Run scripts/Riptide.FileS6.Rmd using sample_data_files/metagenome_data.txt  
+
+**Assignment of LCAs to reads with kraken2**  
+*Build kraken2 library*  
+kraken2-build --download-taxonomy --db kraken2-nt  
+kraken2-build --download library nt --db kraken2-nt  
+kraken2-build --build --db kraken2-nt</span> 
+*Assign reads using kraken2*  
+kraken2 --threads 16 --db kraken2-nt --paired --report kraken2_report.txt  R1.fastq.gz R2.fastq.gz
+*Retrieval of domain assignments for reads*  
+awk '$4=="D"' kraken2_report.txt  
+*Retrieval of phylum assignments for reads, minimum percentage cutoff of 0.5*  
+awk '$4=="P"' kraken2_report.txt | awk '$1>0.5' -  
+*Visualization*
+Run scripts/Riptide.FileS6.Rmd using sample_data_files/metagenome_data.txt  
 
 
 ## System requirements
