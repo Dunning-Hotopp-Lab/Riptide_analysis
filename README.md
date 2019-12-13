@@ -18,7 +18,7 @@ The repository contains Supplementary Data for the manuscript, including Tables,
 *fastqc*  
 Read pair counts doubled to determine total reads for each library.  
 *Visualize counts*  
-Run scripts/FileS1 - raw read counts using sample_data_files/raw+mapped_reads.txt
+Run scripts/Riptide.FileS1.Rmd using sample_data_files/raw+mapped_reads.txt
 
 **Mapped read counts**  
 *Map reads with bwa*  
@@ -34,7 +34,7 @@ Run scripts/Riptide.FileS1.Rmd - mapped read counts using sample_data_files/raw+
 *Count reads, filtering unmapped, duplicate, secondary*  
 samtools view -F 4 -F 256 -F 1024 -F 2048 -c dupsmarked.bam  
 *Visualize counts*  
-Run scripts/Riptide.FileS1.Rmd - primary read counts using sample_data_files/raw+mapped_reads.txt
+Run scripts/Riptide.FileS1.Rmd using sample_data_files/raw+mapped_reads.txt
 
 **Quantification of indels in read libraries**
 *Generate filtered BAM to retain primary reads*  
