@@ -1,0 +1,217 @@
+---
+title: "File S1: Read representation and mapping performance"
+author: "Eric S. Tvedte"
+date: "December 10, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Usage
+
+Read composition analyses were performed to determine whether the Riptide library preparation kit produces a reliable sequencing dataset. We visualized patterns of raw read counts across Riptide sample replicates. In addition, we compared read mapping patterns of Riptide datasets versus other Illumina-based methods. 
+
+#Input dataset
+
+The input for the following analysis is a tab-delimited text file, containing the following data columns: sample ID, species, raw read count (number of pairs). All non-BLANK samples also contained counts of mapped left and right reads that met various filtering criteria. Lastly, each species was given a species number assignment according to genome GC content so that patterns could be visualized from low to high GC. 
+
+```{r input}
+library("ggplot2")
+library("ggrepel")
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/Riptide_read_composition.txt"
+data <- read.table(in.path, header = T, sep = '\t')
+
+```
+
+#Raw read counts
+Here, read pair counts are doubled and plotted for each species. Species numbers were used to discern patterns on the basis of GC content.  
+
+```{r plot raw, fig.height=3, fig.width=3, fig.align="center"}
+
+data$species <- as.character(data$species)
+#data[grep("Aspergillus", data[,2]),2] <- "Aspergillus"
+
+#data$reads <- data$read_pairs * 2
+
+rip_data <- data[1:96,]
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/Riptide_rawread.pdf", width = 3, height = 3)
+
+  p1 <- ggplot(rip_data, aes(x=reorder(species, species_numeric), y=total_reads/1000000)) +              labs(x="specimen",y="read count (millions)")
+  
+  p1 + geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=total_reads/1000000), outlier.shape = NA) +
+       geom_jitter(aes(colour = reorder(species, species_numeric)), show.legend = FALSE, width = 0.1, height = 0.1, shape = 16, size = 0.75) +
+       scale_color_manual(values=c('#f032e6','#ffe119','#4363d8','#fabebe','#e6194b','#3cb44b','#bcf60c','#f58231','#46f0f0','#911eb4','#000000')) + 
+       #theme(axis.text.x = element_text(face = "italic", size = 8, angle = 45)) + 
+       theme_bw() + 
+       theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
+       scale_x_discrete(labels=c("Acinetobacter" = "Acinetobacter (39%)", 
+                                 "Aspergillus" = "Aspergillus (50%)",
+                                 "Brugia" = "Brugia (28%)",
+                                 "Cryptosporidium" = "Cryptosporidium (30%)",
+                                 "E. coli" = "E. coli (51%)",
+                                 "Klebsiella" = "Klebsiella (57%)",
+                                 "Plasmodium" = "Plasmodium (19%)",
+                                 "pB171" = "pB171 (51%)",
+                                 "Shigella" = "Shigella (51%)",
+                                 "Theileria" = "Theileria (34%)",
+                                 "BLANK" = "BLANK")) 
+    #comment in/out to visualize y axis, evenly spaced figures for publication
+    #scale_y_continuous(labels=NULL)
+
+#optional pdf close 
+#dev.off()
+
+```
+
+
+
+#Mapped read counts
+Here, BAM files were filtered to remove unmapped and duplicate reads, and the proportion of reads remaining were subsequently plotted for each species. Species numbers were used to sort by GC content.  
+
+Colors of outlined sqares representing non-Riptide datapoints were edited to match corresponding Riptide samples.
+
+Dots for BLANK wells were removed (not mapped)
+
+```{r plot mapped, fig.height=3, fig.width=3, fig.align="center"}
+
+map_data <- data[complete.cases(data),]
+
+map_data$pctmapped <- map_data$filter_unmap_duplicate / map_data$total_reads
+map_data$pctprimary <- map_data$filter_secondary / map_data$total_reads
+
+rip_map_data <- map_data[1:89,]
+nrip_map_data <- map_data[97:109,]
+
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/Riptide_mappedread.pdf", width = 3, height = 3)
+
+
+  p2 <- ggplot(rip_map_data, aes(x=reorder(species, species_numeric), y=pctmapped)) + labs(x="specimen",y="proportion of total reads")
+  
+  p2 + 
+    geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=pctmapped), outlier.shape = NA) +
+    geom_jitter(aes(colour = reorder(species, species_numeric)), show.legend = FALSE, width = 0.1, height = 0.1, shape = 16, size = 0.75) +
+    scale_color_manual(values=c('#f032e6','#ffe119','#4363d8','#fabebe','#e6194b','#3cb44b','#bcf60c','#f58231','#46f0f0','#911eb4', '#000000')) + 
+    geom_point(data=nrip_map_data, aes(x=reorder(species, species_numeric), y=pctmapped), shape = 22, fill="lightblue", color="black", size = 0.75) + 
+    ylim(0,1) +
+    theme_bw() + 
+    theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
+    scale_x_discrete(labels=c("Acinetobacter" = "Acinetobacter (39%)", 
+                                   "Aspergillus" = "Aspergillus (50%)",
+                                   "Brugia" = "Brugia (28%)",
+                                   "Cryptosporidium" = "Cryptosporidium (30%)",
+                                   "E. coli" = "E. coli (51%)",
+                                   "Klebsiella" = "Klebsiella (57%)",
+                                   "Plasmodium" = "Plasmodium (19%)",
+                                   "pB171" = "pB171 (51%)",
+                                   "Shigella" = "Shigella (51%)",
+                                   "Theileria" = "Theileria (34%)",
+                                   "BLANK" = "BLANK")) 
+    #comment in/out to visualize y axis, evenly spaced figures for publication
+    #scale_y_continuous(labels=NULL)
+
+#optional pdf close 
+#dev.off()
+
+```
+
+
+#Primary read counts
+Here, BAM files were filtered to remove unmapped, duplicate, and secondary reads, and the proportion of reads remaining were subsequently plotted for each species. Species numbers were used to sort by GC content. 
+
+Colors of outlined sqares representing non-Riptide datapoints were edited to match corresponding Riptide samples.
+
+Dots for BLANK wells were removed (not mapped)
+```{r plot primary, fig.height=3, fig.width=3, fig.align="center"}
+
+
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/Riptide_primaryread.pdf", width = 3, height = 3)
+
+  p3 <- ggplot(rip_map_data, aes(x=reorder(species, species_numeric), y=pctprimary)) + labs(x="specimen",y="proportion of total reads")
+    
+    p3 + 
+      geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=pctprimary), outlier.shape = NA) +
+      geom_jitter(aes(colour = reorder(species, species_numeric)), show.legend = FALSE, width = 0.1, height = 0.1, shape = 16, size = 0.75) +
+         scale_color_manual(values=c('#f032e6','#ffe119','#4363d8','#fabebe','#e6194b','#3cb44b','#bcf60c','#f58231','#46f0f0','#911eb4', '#000000')) + #deleted color 000000
+      #geom_jitter(data = rip_map_data, aes(x=reorder(species, species_numeric), y=pctmapped, colour = reorder(species, species_numeric)), shape = 1, show.legend = FALSE) + 
+      geom_point(data=nrip_map_data, aes(x=reorder(species, species_numeric), y=pctprimary), shape = 22, fill="lightblue", color="black", size = 0.75) + 
+      ylim(0,1) +
+      theme_bw() + 
+      theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
+      scale_x_discrete(labels=c("Acinetobacter" = "Acinetobacter (39%)", 
+                                     "Aspergillus" = "Aspergillus (50%)",
+                                     "Brugia" = "Brugia (28%)",
+                                     "Cryptosporidium" = "Cryptosporidium (30%)",
+                                     "E. coli" = "E. coli (51%)",
+                                     "Klebsiella" = "Klebsiella (57%)",
+                                     "Plasmodium" = "Plasmodium (19%)",
+                                     "pB171" = "pB171 (51%)",
+                                     "Shigella" = "Shigella (51%)",
+                                     "Theileria" = "Theileria (34%)",
+                                     "BLANK" = "BLANK"))  
+      #comment in/out to visualize y axis, evenly spaced figures for publication
+      #scale_y_continuous(labels=NULL)
+
+
+#optional pdf close 
+#dev.off()
+
+
+```
+
+
+Using the same scripts, plots were generated for additional Acinetobacter samples on Riptide plate 2. 
+
+
+```{r acineto, echo=FALSE, fig.height=3, fig.width=2, fig.align="center"}
+acineto.path = "Y:/RDRIP/etvedte/bam/one-to-one/RIPTIDE_plate2_Ab_readstats.txt"
+
+ac_data <- read.table(acineto.path, header = T, sep = '\t')
+ac_data$reads <- ac_data$pe_reads * 2
+
+p3 <- ggplot(ac_data, aes(x=species, y=reads/1000000)) + labs(x="specimen",y="read count (millions)")
+
+p3 + geom_boxplot(mapping=aes(x=species, y=reads/1000000), outlier.shape = NA) +
+     geom_jitter(aes(colour = species), show.legend = FALSE, width = 0.1, height = 0.1) +
+     scale_color_manual(values=c('#e6194b')) + 
+     ylim(0,30) +
+     theme_bw()
+
+#ggsave("Y:/RDRIP/etvedte/bam/one-to-one/Acinteto_Plate2_reads.pdf", height = 6, width = 2)
+
+
+```
+
+
+```{r mapped reads Ab, fig.height=3, fig.width=2, fig.align="center"}
+
+
+ac_data$mapped <- ac_data$l_filt_unmap_dup + ac_data$r_filt_unmap_dup
+ac_data$primary <- ac_data$l_filt_secondary + ac_data$r_filt_secondary
+ac_data$pctmapped <- ac_data$mapped / ac_data$reads
+ac_data$pctprimary <- ac_data$primary / ac_data$reads
+
+
+p4 <- ggplot(ac_data, aes(x=species, y=pctprimary)) + labs(x="specimen",y="proportion of total reads")
+
+p4 + 
+  geom_boxplot(mapping=aes(x=species, y=pctprimary), outlier.shape = NA) +
+  geom_jitter(aes(colour = species), show.legend = FALSE) +
+     scale_color_manual(values=c('#e6194b')) + #deleted color 000000
+  geom_jitter(data = ac_data, aes(x=species, y=pctmapped, colour = species), shape = 1, show.legend = FALSE) +
+  ylim(0,1) +
+  theme_bw()
+
+#ggsave("Y:/RDRIP/etvedte/bam/one-to-one/Acinteto_Plate2_mappedread.pdf")
+
+```
+
+
+```{r session_info, echo = FALSE}
+sessionInfo()
+#devtools::session_info()
+```
+
+Document processed on: `r Sys.Date()` .
