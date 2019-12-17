@@ -137,9 +137,11 @@ awk '{print $11}' NCBI.filter.coords | tail -n +6 | sort -n | uniq > NCBI.match.
 xargs samtools faidx spades.contigs.fasta < NCBI.match.list >> matched_contigs.fasta  
 *Similar alignment using only contigs with match to NCBI reference*  
 nucmer --mum --minmatch 150 --prefix NCBI_match Ecoli_HS_genome.fasta matched_contigs.fasta  
-delta-filter -qr NCBI_match > NCBI_match.filter  
+delta-filter -g NCBI_match.delta > NCBI_match.filter  
 show-coords -rb NCBI_match.filter > NCBI_match.coords  
 cat NCBI_match.coords | tail -n +6 | awk '{print $1"\t"$2}' > NCBI_start+end.coords  
+*Manual inspection of coords file to remove duplicate entries*  
+awk '{print $11}' NCBI_match.coords | uniq -d  
 *Visualization*  
 Run scripts/Riptide.FileS.Rmd using sample_data_files/ecoli.breaks.txt
 
