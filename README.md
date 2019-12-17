@@ -128,9 +128,9 @@ seqtk sample -s 13 rev.fastq 0.75 > rev.0.75.fastq
 Repeat to retrieve 50% and 25% of non-Riptide library reads.  
 Perform spades and QUAST as above with subsampled datasets.
 
-**Visualizing breakpoints in E. coli assemblies**
-*Align contigs to E. coli reference using nucmer (MUMmer3)*
-nucmer --prefix NCBI Ecoli_HS_genome.fasta ecoli.spades.contigs.fasta
+**Visualizing breakpoints in E. coli assemblies**  
+*Align contigs to E. coli reference using nucmer (MUMmer3)*  
+nucmer --prefix NCBI Ecoli_HS_genome.fasta ecoli.spades.contigs.fasta  
 delta-filter -q NCBI.delta > NCBI.filter  
 show-coords -rb NCBI.filter > NCBI.filter.coords  
 awk '{print $11}' NCBI.filter.coords | tail -n +6 | sort -n | uniq > NCBI.match.list  
@@ -140,7 +140,7 @@ nucmer --mum --minmatch 150 --prefix NCBI_match Ecoli_HS_genome.fasta matched_co
 delta-filter -qr NCBI_match > NCBI_match.filter  
 show-coords -rb NCBI_match.filter > NCBI_match.coords  
 cat NCBI_match.coords | tail -n +6 | awk '{print $1"\t"$2}' > NCBI_start+end.coords  
-*Visualization*
+*Visualization*  
 Run scripts/Riptide.FileS.Rmd using sample_data_files/ecoli.breaks.txt
 
 ### Metagenome analysis <a name="meta"></a>
