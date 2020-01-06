@@ -66,13 +66,13 @@ bedtools makewindows -g genomefile.bed -w 1000 > genome_windows.bed
 *Determine genome-wide coverage using bedtools*  
 bedtools coverage -a genome_windows.bed -b primary.bam -hist | grep ^all > genome_coverage.bed  
 *Visualize genome-wide coverage: continuous y-axis*  
-Run scripts/Riptide.FileS2.Rmd - Klebsiella using sample_data_files/Klebsiella_coverage.txt  
+Run scripts/Riptide.FileS2.Rmd - E.coli using sample_data_files/Ecoli_Riptide_depth.bed and Ecoli_KAPA_depth.bed  
 *Visualize genome-wide coverage: discontinuous y-axis*  
-Run scripts/Riptide.FileS2.Rmd - Plasmodium using sample_data_files/Plasmodium_coverage.txt  
-*Make overlapping sliding window intervals using bedtools*  
-bedtools makewindows -g genomefile.bed -w 1000 -s 500 > genome_windows_ovl.bed  
+Run scripts/Riptide.FileS2.Rmd - Shigella using sample_data_files/Shigella_Riptide_depth.bed and Shigella_KAPA_depth.bed 
 
 **Sequencing depth versus genome GC content**  
+*Make overlapping sliding window intervals using bedtools*  
+bedtools makewindows -g genomefile.bed -w 1000 -s 500 > genome_windows_ovl.bed  
 *Determine GC content of sliding windows*  
 bedtools nuc -fi genome.fasta -bed genome_windows_ovl.bed | awk '{print $1,$2, $3, $5}' - | tail -n +2 - > GC.txt  
 *Determine mode depth for each sliding window*  
@@ -146,7 +146,7 @@ cat NCBI_match.coords | tail -n +6 | awk '{print $1"\t"$2}' > NCBI_start+end.coo
 *Manual inspection of coords file to remove duplicate entries*  
 awk '{print $11}' NCBI_match.coords | uniq -d  
 *Visualization*  
-Run scripts/Riptide.FileS.Rmd using sample_data_files/ecoli.breaks.txt
+Run scripts/Riptide.FileS.Rmd using 12 sample_data_files/.coords files 
 
 ### Metagenome analysis <a name="meta"></a>
 **Raw read counts for metagenome libraries**
@@ -208,14 +208,12 @@ This folder contains output html files generated from Rmd files using the R pack
 **sample_data_files**  
 This folder contains sample input files for data analysis. 
 
-Riptide.FileS6: Read composition, mapping performance, and indel quantification
+raw+mapped_reads.txt: for use with Riptide.FileS1.Rmd
 
-Riptide.FileS7: Read coverage histograms
+Ecoli_Riptide_depth.bed, Ecoli_KAPA_depth.bed, Shigella_KAPA_depth.bed, Shigella_KAPA_depth.bed: for use with Riptide.FileS2.Rmd
 
-Riptide.FileS8: Sequencing depth across GC values
+Riptide_contamination_filter1.txt: for use with Riptide.FileS3.Rmd
 
-Riptide.FileS9: Contamination Analysis
+12 files with .coords extension: for use with Riptide.FileS4.Rmd
 
-Riptide.FileS10: Visualizing breakpoints in E. coli genome assemblies
-
-Riptide.FileS11: Metagenome analysis
+metagenome_data.txt: for use with Riptide.FileS5.Rmd
