@@ -12,6 +12,9 @@ The repository contains Supplementary Data for the manuscript, including Tables,
 3. [Riptide contamination analysis](#contam)
 4. [De novo assemblies](#denovo)
 5. [Metagenome analysis](#meta)
+6. [System requirements](#system)
+7. [Installation](#install)
+8. [GitHub repository contents](#github)
 
 ### Read representation analysis <a name="read.rep"></a>
 **Raw read counts**  
@@ -166,8 +169,7 @@ awk '$4=="P"' kraken2_report.txt | awk '$1>0.5' -
 *Visualization*
 Run scripts/Riptide.FileS6.Rmd using sample_data_files/metagenome_data.txt  
 
-
-## System requirements
+### System requirements <a name="system"></a>
 
 R scripts were run using Windows 10 x64 with RStudio v1.1.463 using this R session:
 ```
@@ -175,17 +177,18 @@ R version 3.5.1 (2018-07-02)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 Running under: Windows 10 x64 (build 18362)
 ```
-## Installation
+### Installation <a name="install"></a>
 Requirements for installed packages are available in Supplementary Files. 
 
-## 1. supplementary_figures
-This folder contains Supplementary Figures reported in the manuscript, Figure S1 - S14
+### GitHub repository contents <a name="github"></a>  
+## supplementary_figures 
+Contains Supplementary Figures reported in the manuscript, Figure S1 - S14
 
-## 2. supplementary_tables
-This folder contains Supplementary Tables reported in the manuscript, Table S1 - S13
+## supplementary_tables
+Contains Supplementary Tables reported in the manuscript, Table S1 - S13
 
-## 3. scripts
-This folder contains six Rmd scripts used for data analysis:
+## scripts
+Contains six Rmd scripts used for data analysis:
 
 Riptide.FileS1: Read composition, mapping performance, and indel quantification
 
