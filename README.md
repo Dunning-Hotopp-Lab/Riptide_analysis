@@ -181,13 +181,13 @@ Running under: Windows 10 x64 (build 18362)
 Requirements for installed packages are available in Supplementary Files. 
 
 ### GitHub repository contents <a name="github"></a>  
-## supplementary_figures 
+**supplementary_figures**  
 Contains Supplementary Figures reported in the manuscript, Figure S1 - S14
 
-## supplementary_tables
+**supplementary_tables**  
 Contains Supplementary Tables reported in the manuscript, Table S1 - S13
 
-## scripts
+**scripts**  
 Contains six Rmd scripts used for data analysis:
 
 Riptide.FileS1: Read composition, mapping performance, and indel quantification
@@ -202,11 +202,10 @@ Riptide.FileS5: Metagenome analysis
 
 Sample input files are provided in sample_data_files. Input and output file paths are hard-coded in the scripts, change these to run the scripts on your local system.
 
-## 4. htmls
-
+**htmls**  
 This folder contains output html files generated from Rmd files using the R package knitr.
 
-## 5. sample_data_files
+**sample_data_files**  
 This folder contains sample input files for data analysis. 
 
 Riptide.FileS6: Read composition, mapping performance, and indel quantification
