@@ -179,25 +179,23 @@ Running under: Windows 10 x64 (build 18362)
 Requirements for installed packages are available in Supplementary Files. 
 
 ## 1. supplementary_figures
-This folder contains Supplementary Figures reported in the manuscript, Figure S1 - S12
+This folder contains Supplementary Figures reported in the manuscript, Figure S1 - S14
 
 ## 2. supplementary_tables
-This folder contains Supplementary Tables reported in the manuscript, Table S1 - SX
+This folder contains Supplementary Tables reported in the manuscript, Table S1 - S13
 
 ## 3. scripts
 This folder contains six Rmd scripts used for data analysis:
 
-Riptide.FileS6: Read composition, mapping performance, and indel quantification
+Riptide.FileS1: Read composition, mapping performance, and indel quantification
 
-Riptide.FileS7: Read coverage histograms
+Riptide.FileS2: Read coverage histograms
 
-Riptide.FileS8: Sequencing depth across GC values
+Riptide.FileS3: Contamination analysis
 
-Riptide.FileS9: Contamination Analysis
+Riptide.FileS4: Visualizing breakpoints in E. coli genome assemblies
 
-Riptide.FileS10: Visualizing breakpoints in E. coli genome assemblies
-
-Riptide.FileS11: Metagenome analysis
+Riptide.FileS5: Metagenome analysis
 
 Sample input files are provided in sample_data_files. Input and output file paths are hard-coded in the scripts, change these to run the scripts on your local system.
 
