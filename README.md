@@ -133,11 +133,11 @@ Perform spades and QUAST as above with subsampled datasets.
 
 **Visualizing breakpoints in E. coli assemblies**  
 *Align contigs to E. coli reference using nucmer (MUMmer3)*  
-nucmer --prefix NCBI Ecoli_HS_genome.fasta ecoli.spades.contigs.fasta  
+nucmer --prefix NCBI Ecoli_HS_genome.fasta contigs.fasta  
 delta-filter -q NCBI.delta > NCBI.filter  
 show-coords -rb NCBI.filter > NCBI.filter.coords  
 awk '{print $11}' NCBI.filter.coords | tail -n +6 | sort -n | uniq > NCBI.match.list  
-xargs samtools faidx spades.contigs.fasta < NCBI.match.list >> matched_contigs.fasta  
+xargs samtools faidx contigs.fasta < NCBI.match.list >> matched_contigs.fasta  
 *Similar alignment using only contigs with match to NCBI reference*  
 nucmer --mum --minmatch 150 --prefix NCBI_match Ecoli_HS_genome.fasta matched_contigs.fasta  
 delta-filter -g NCBI_match.delta > NCBI_match.filter  
