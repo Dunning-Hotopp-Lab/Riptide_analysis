@@ -1,0 +1,115 @@
+---
+title: "File S6: Metagenome analaysis"
+author: "Eric S. Tvedte"
+date: "February 18, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Input dataset
+
+The input for the following analysis is a tab-delimited text file, containing the following data columns: sample ID, experiment, experimental group (CHANGE "TAG" IN .txt FILE to "GROUP"), barcode, primer category, technical replicates, number of paired reads, percentage of reads classified by kraken2, percentage of reads containing domain LCAs, and percentage of reads containing phylum LCAs greater than 0.5%. Each sample was given a sample number assignment so that patterns could be visualized matching the progression of the experiment and the comparison of Riptide to non-Riptide datasets. 
+
+
+```{r input}
+library(ggplot2)
+library(tidyverse)
+library(jcolors)
+in.path = "Y:/RDRIP/etvedte/meta_ETEC/RIPTIDEPAPER_meta_final_2.txt"
+data <- read.table(in.path, header = T, sep = '\t')
+
+```
+
+#Raw read counts
+
+```{r plot, fig.height=5, fig.width=3.3, fig.align="center"}
+
+data$reads <- data$read_pairs * 2
+
+
+
+etec.rip.data <- subset(data, GC_primer != "K") 
+etec.rip.data <- subset(etec.rip.data, GC_primer != "HL*") 
+
+xfact  = factor(etec.rip.data$day, levels=c("1", "2", "6","10"))
+
+#pdf output
+#pdf("Y:/RDRIP/etvedte/meta_ETEC/ETEC_rawreadcounts.pdf", width = 3.3, height = 5)
+
+  p1 <- ggplot(etec.rip.data, aes(xfact, reads/1000000)) +
+        labs(x="sample",y="read count (millions)") + 
+        ylim(0,30) + 
+        theme_bw() +
+        theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) 
+    
+  
+  p1 + geom_boxplot(mapping=aes(x=xfact,y=etec.rip.data$reads/1000000), outlier.shape = NA) +      
+       geom_jitter(aes(colour = GC_primer), width = 0.1, height = 0.1) +
+       scale_color_jcolors(palette = "pal3") 
+
+#pdf close
+#dev.off()
+
+```
+
+# kraken 2
+
+##kraken2 domain 
+
+```{r domain, fig.height=4, fig.width=5.5, fig.align="center"}
+
+data[is.na(data)] <- 0
+
+data$day <- factor(data$day, levels = c("1", "2", "6", "10"))
+
+cbp1 <- c("#E69F00", "#009E73", "#F0E442", "#0072B2")
+#pdf("Y:/RDRIP/etvedte/meta_ETEC/ETEC.kraken2.domain_new.pdf", width=5.5, height=4)
+
+data %>% 
+  gather(key, value, c(archaea, bacteria, eukaryota, viruses)) %>% 
+  ggplot(aes(reorder(sample, sample_numeric), value)) +
+  geom_col(aes(fill = key)) +
+  facet_wrap(~ day, ncol = 4, scales = "free_x") + 
+  scale_y_continuous(name = "percent LCA", limits=c(0,100)) +
+  scale_x_discrete(name = "sample") +
+  scale_fill_manual(values = cbp1) +
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) 
+
+#pdf close
+#dev.off()
+
+```
+Order is by GC primer: L1, L2, HL1, HL2, H1, H2, HLmock, non-Riptide1, nonRiptide2 (only 009-6-10-1)
+
+##kraken2 phylum 
+
+```{r phylum, fig.height=4, fig.width=5.5, fig.align="center"}
+
+#pdf("Y:/RDRIP/etvedte/meta_ETEC/ETEC.Rip.phylum_new.pdf", width=5.5, height=4)
+
+  data %>% 
+    gather(key, value, -c(sample, sample_numeric,barcode, experiment, day, GC_primer, replicate, read_pairs, classified, archaea, bacteria, eukaryota, viruses, reads)) %>% 
+    ggplot(aes(reorder(sample, sample_numeric), value)) +
+    geom_col(aes(fill = key)) +
+    facet_wrap(~ day, ncol = 4, scales = "free_x") + 
+    scale_y_continuous(name = "percent LCA", limits=c(0,100)) +
+    scale_x_discrete(name = "sample") +
+    scale_fill_brewer(palette = "Dark2") +
+    theme_bw() + 
+    theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) 
+#dev.off()
+
+```
+
+
+```{r session_info, echo = FALSE}
+sessionInfo()
+#devtools::session_info()
+```
+
+Document processed on: `r Sys.Date()` .
+

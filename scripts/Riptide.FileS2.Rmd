@@ -1,0 +1,2319 @@
+---
+title: "File S2: Read coverage histograms"
+author: "Eric S. Tvedte"
+date: "February 14, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Usage
+
+Sequencing breadth and depth was determined for Riptide and non-Riptide Illumina libraries. 
+
+##Main text
+The scripts below were used to produce plots included in the main text of the manuscript.
+
+###E. coli  
+The script below was developed to visualize coverage distributions across a continuous y-axis for a single Riptide library. 
+
+```{r Ec, fig.align="center", fig.height=2, fig.width=3.5}
+rip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/TAGCTACG-Ecoli_L007_coverage"
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/RDRIP_20190111_K00134_IL100117483_MX6_L001_coverage_Ecoli.bed"
+rip.data <- read.table(rip.path, header = F, sep = '\t')
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+
+rip.data$depth_prop <- rip.data$depth_prop * 100
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+color.rip <- '#f5823190'
+color.nrip <- '#f5823130'
+  
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Ecoli_RvsNR_coverage.pdf", height = 2, width = 3.5)
+  
+  #set margins for plot 
+  par(mar = c(4,5,1,1))
+  
+  #riptide data
+  plot(rip.data$depth, 
+       rip.data$depth_prop, 
+       col=c(color.rip), 
+       type = 'l', 
+       lwd = 2,
+       #log = "x",
+       xaxt = "n",
+       yaxt = "n",
+       xlim = c(1,600),
+       ylim = c(0,2),
+       xlab = "depth of coverage", 
+       ylab = "percentage of genome", 
+       cex.lab = 0.6,
+       main = 'AGCTACG-Ecoli',
+       cex.main = 0.75, 
+       frame.plot = FALSE)
+  
+  #fill area under lines
+  polygon(c(0, rip.data$depth),
+    c(0,rip.data$depth_prop), 
+    col=c(color.rip)) 
+  
+  #plot observed depth for Riptide
+  x_1 <- rip.data$depth
+  max_dp_rip <- x_1[which.max(rip.data$depth_prop)]
+  text(max_dp_rip,
+       max(rip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+       pos = 3)
+
+  #plot expected depth for Riptide, this was calculated elsewhere
+  abline(v = 154, col='#f5823190', lwd=1, lty=2)
+  text(154, max(rip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'RE: 154X', 
+       pos = 3)
+  
+  par(new=TRUE)
+  
+  #non-riptide data
+  plot(nrip.data$depth, 
+       nrip.data$depth_prop, 
+       col=c(color.nrip), 
+       type = 'l', 
+       lwd = 2, 
+       #log = "x",
+       xlim = c(1,600),
+       ylim = c(0,2),
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(c(0, nrip.data$depth),
+          c(0, nrip.data$depth_prop), 
+          col=c(color.nrip)) 
+  
+  axis(side=1, 
+       at = c(0, 100, 200, 300, 400, 500, 600), 
+       labels = c("0", "100", "200", "300", "400", "500", "600"), 
+       cex.axis = 0.5, 
+       las = 1)
+  axis(side=2,
+       cex.axis = 0.5, 
+       las = 1)
+       
+  #plot observed depth for non-Riptide
+  x_2 <- nrip.data$depth
+  max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+  text(max_dp_nrip,
+       max(nrip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+       pos = 3)
+  #plot expected depth for KAPA, this was calculated elsewhere
+  abline(v = 315, col='#f5823130', lwd=1, lty=2)
+  text(315, max(nrip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'KE: 315X', 
+       pos = 3)
+
+#dev.off()
+
+
+```
+
+###Shigella
+The script below was developed to visualize coverage distributions across a discontinuous y-axis for a single Riptide library. 
+
+```{r Sb, fig.align="center", fig.height=2, fig.width=3.5}
+rip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/GTGAACAG-Shigella_L007_coverage"
+nrip.path = "Y:/RDRIP/etvedte/non-RIPTIDE/Depth_of_Coverage/RDRIP_20190111_K00134_IL100117790_MX7_L001_REDUX_TRIM_coverage_Shigella.bed"
+rip.data <- read.table(rip.path, header = F, sep = '\t')
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+
+rip.data$depth_prop <- rip.data$depth_prop * 100
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+color.rip <- '#bcf60c90'
+color.nrip <- '#bcf60c60'
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Sboydii_RvsNR_coverage.pdf", height = 2, width = 3.5)
+
+  #set margins for plot
+  par(mar = c(4,5,1,1))
+  
+  #discontinuous y-axis: layout for multiplot
+  layout(matrix(c(2,2,1,1,1,1), nrow = 3, ncol = 2, byrow = TRUE))
+  
+  #plot riptide lower
+  plot(rip.data$depth, 
+       as.numeric(rip.data$depth_prop), 
+       col=c(color.rip), 
+       type = 'l', 
+       lwd = 2, 
+       ylim = c(0, 3), 
+       xlim = c(1,600), 
+       xlab = "depth of coverage", 
+       xaxt = "n",
+       yaxt = 'n', 
+       ylab = "percentage of genome", 
+       cex.lab = 0.6,
+       frame.plot = FALSE)
+  
+  polygon(x=c(0, rip.data$depth),
+          y=c(0, rip.data$depth_prop), 
+          col=c(color.rip)) 
+  #plot expected depth for Riptide, this was calculated elsewhere
+  abline(v = 4, col='#bcf60c90', lwd=1, lty=2)
+  
+  par(new=TRUE)
+  
+  #plot non-riptide lower
+  plot(nrip.data$depth, 
+       as.numeric(nrip.data$depth_prop), 
+       col=c(color.nrip), 
+       type = 'l', 
+       #lwd = 2, 
+       ylim = c(0, 3),
+       xlim = c(1,600), 
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(x=c(0, nrip.data$depth),
+          y=c(0, nrip.data$depth_prop), 
+          col=c(color.nrip)) 
+  
+  #plot observed depth for non-Riptide
+  x_2 <- nrip.data$depth
+  max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+  text(max_dp_nrip,
+       max(nrip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+       pos = 3)
+  axis(side=1,
+       cex.axis = 0.5, 
+       las = 1)
+  axis(side=2, at = c(0, 1, 2, 3), 
+       labels = c("0","1", "2", "3"), 
+       cex.axis = 0.5, 
+       las = 1)
+  
+  #plot expected depth for KAPA, this was calculated elsewhere
+  abline(v = 167, col='#bcf60c60', lwd=1, lty=2)
+  text(167, max(nrip.data$depth_prop)/2,
+       cex = 0.5, 
+       labels = 'KE: 167X', 
+       pos = 3)
+  
+  #plot 2 margins
+  par(mar = c(0,5,1,1))
+  
+  #plot riptide upper
+  plot(rip.data$depth, 
+       as.numeric(rip.data$depth_prop),
+       col=c(color.rip), 
+       type = 'l', 
+       lwd = 2, 
+       ylim = c(10, 30), 
+       xlim = c(1,600), 
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n', 
+       ylab = "", 
+       main = 'GTGAACAG-Shigella',
+       cex.main = 0.75, 
+       frame.plot = FALSE)
+  
+  
+  polygon(x=c(0, rip.data$depth),
+          y=c(0, rip.data$depth_prop), 
+          col=c(color.rip)) 
+  
+  #plot observed depth for Riptide
+  #remove first row for zero coverage to label local maxima (optional)
+  nz.rip.data <- rip.data[-c(1), ]
+  x_1 <- nz.rip.data$depth
+  max_dp_rip <- x_1[which.max(nz.rip.data$depth_prop)]
+  text(max_dp_rip,
+       max(nz.rip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+       pos = 4)
+  
+  par(new=TRUE)
+  
+  #plot non-Riptide upper
+  plot(nrip.data$depth,
+       as.numeric(nrip.data$depth_prop),
+       col=c(color.nrip), 
+       type = 'l', 
+       lwd = 2, 
+       ylim = c(10, 30), 
+       xlim = c(1,600), 
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(x=c(0, nrip.data$depth),
+          y=c(0, nrip.data$depth_prop),
+          border = NA,
+          col=c(color.nrip)) 
+  
+  axis(side=2, at = c(10, 20, 30), 
+       labels = c("10", "20","30"), 
+       cex.axis = 0.5,
+       las = 1)
+  
+  #plot expected depth for Riptide, this was calculated elsewhere
+  abline(v = 4, col='#bcf60c90', lwd=1, lty=2)
+  text(4, 20, 
+       cex = 0.5, 
+       labels = 'RE: 4X', 
+       pos = 3)
+  #plot expected depth for KAPA, this was calculated elsewhere
+  abline(v = 167, col='#bcf60c60', lwd=1, lty=2)
+
+#optional pdf close
+#dev.off()
+
+
+
+```
+
+###Theileria
+```{r Tp, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+rip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/GAGTTCTG-JD7_L007_coverage"
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Tparva_nonRIPTIDE_BEDTools_coverage"
+rip.data <- read.table(rip.path, header = F, sep = '\t')
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+
+rip.data$depth_prop <- rip.data$depth_prop * 100
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+color.rip <- '#fabebe90'
+color.nrip <- '#fabebe30'
+  
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Tparva_RvsNR_coverage.pdf", height = 2, width = 3.5)
+  
+  #set margins for plot 
+  par(mar = c(4,5,1,1))
+  
+  #riptide data
+  plot(rip.data$depth, 
+       rip.data$depth_prop, 
+       col=c(color.rip), 
+       type = 'l', 
+       lwd = 2,
+       #log = "x",
+       xaxt = "n",
+       yaxt = "n",
+       xlim = c(1,600),
+       ylim = c(0,1),
+       xlab = "depth of coverage", 
+       ylab = "percentage of genome", 
+       cex.lab = 0.6,
+       main = 'GAGTTCTG-Theileria',
+       cex.main = 0.75,
+       frame.plot = FALSE)
+  
+  polygon(c(0, rip.data$depth),
+   c(0,rip.data$depth_prop), 
+   col=c(color.rip)) 
+  
+  #plot observed depth for Riptide,
+  x_1 <- rip.data$depth
+  max_dp_rip <- x_1[which.max(rip.data$depth_prop)]
+  text(max_dp_rip,
+       max(rip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+       pos = 3)
+  
+  #plot expected depth for Riptide, this was calculated elsewhere
+  abline(v = 157, col='#fabebe90', lwd=1, lty=2)
+  text(157, max(rip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'RE: 157X', 
+       pos = 3)
+  
+  par(new=TRUE)
+  
+  #plot non-Riptide
+  plot(nrip.data$depth, 
+       nrip.data$depth_prop, 
+       col=c(color.nrip), 
+       type = 'l', 
+       lwd = 2, 
+       #log = "x",
+       xlim = c(1,600),
+       ylim = c(0,1),
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(c(0, nrip.data$depth),
+          c(0, nrip.data$depth_prop), 
+          col=c(color.nrip)) 
+  
+  axis(side=1, 
+       at = c(0, 100, 200, 300, 400, 500, 600), 
+       labels = c("0", "100", "200", "300", "400", "500", "600"), 
+       cex.axis = 0.5, 
+       las = 1)
+   axis(side=2, 
+       cex.axis = 0.5, 
+       las = 1)
+  
+  #plot observed depth for non-Riptide
+  x_2 <- nrip.data$depth
+  max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+  text(max_dp_nrip,
+       max(nrip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('NEBO: ', toString(max_dp_nrip), 'X', sep = ''), 
+       pos = 3)
+  #plot expected depth for KAPA, this was calculated elsewhere
+  abline(v = 424, col='#fabebe30', lwd=1, lty=2)
+  text(424, max(nrip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'NEBE: 424X', 
+       pos = 3)
+
+#dev.off()
+
+
+```
+
+###Brugia
+```{r Bp, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+rip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Bpahangi_merged_BEDtools_coverage.bed"
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/EBMAL_20190111_K00134_IL100116904_MX85_L001_coverage_Brugia.bed"
+rip.data <- read.table(rip.path, header = F, sep = '\t')
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+
+rip.data$depth_prop <- rip.data$depth_prop * 100
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+color.rip <- '#ffe11990'
+color.nrip <- '#ffe11930'
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Bpahangi_RvsNR_coverage_new.pdf", height = 2, width = 3.5)
+  
+  #set margins for plot 
+  par(mar = c(4,5,1,1))
+  
+  #plot riptide 
+  plot(rip.data$depth, 
+       rip.data$depth_prop, 
+       col=c(color.rip), 
+       type = 'l', 
+       lwd = 2,
+       #log = "x",
+       xaxt = "n",
+       yaxt = "n",
+       xlim = c(1,600),
+       ylim = c(0,2),
+       xlab = "depth of coverage", 
+       ylab = "percentage of genome", 
+       cex.lab = 0.6,
+       main = 'merge-Brugia',
+       cex.main = 0.75,
+       frame.plot = FALSE)
+  
+  polygon(c(0, rip.data$depth),
+    c(0,rip.data$depth_prop), 
+    col=c(color.rip)) 
+  
+  #plot observed depth for Riptide
+  #remove first row for zero coverage to label local maxima (optional)
+  nz.rip.data <- rip.data[-c(1), ]
+  x_1 <- nz.rip.data$depth
+  #x_1 <- rip.data$depth
+  max_dp_rip <- x_1[which.max(nz.rip.data$depth_prop)]
+  text(max_dp_rip,
+       max(nz.rip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+       pos = 4)
+  
+  #plot line for expected Riptide depth, this was calculated elsewhere
+  abline(v = 156, col='#ffe11990', lwd=1, lty=2)
+  text(156, max(rip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'RE: 156X', 
+       pos = 3)
+  
+  par(new=TRUE)
+  
+  #non-riptide data
+  plot(nrip.data$depth, 
+       nrip.data$depth_prop, 
+       col=c(color.nrip), 
+       type = 'l', 
+       lwd = 2, 
+       #log = "x",
+       xlim = c(1,600),
+       ylim = c(0,2),
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(c(0, nrip.data$depth),
+          c(0, nrip.data$depth_prop), 
+          col=c(color.nrip)) 
+  
+  axis(side=1, 
+       at = c(0, 100, 200, 300, 400, 500, 600), 
+       labels = c("0", "100", "200", "300", "400", "500", "600"), 
+       cex.axis = 0.5, 
+       las = 1)
+  axis(2, 
+       cex.axis = 0.5,
+       las=1)
+  
+  #plot observed depth for non-Riptide
+  #remove first row for zero coverage to label local maxima(optional)
+  nz.nrip.data <- nrip.data[-c(1), ]
+  x_2 <- nz.nrip.data$depth
+  max_dp_nrip <- x_2[which.max(nz.nrip.data$depth_prop)]
+  text(max_dp_nrip,
+       max(nz.nrip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+       pos = 3)
+  #plot line for expected KAPA depth, this was calculated elsewhere
+  abline(v = 245, col='#ffe11930', lwd=1, lty=2)
+  text(245, max(nz.nrip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'KE: 245X', 
+       pos = 3)
+
+#dev.off()
+
+
+```
+
+##Supplementary Figures
+The plots below are included as supplementary figures.
+
+###Acinetobacter replicates
+```{r Ac.rep, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDTools"
+files <- list.files(path=path, pattern="Abaumannii_L007_coverage")
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/RDRIP_20190111_K00134_IL100117485_MX8_L001_coverage_Acinetobacter.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#e6194b30'
+
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+dexp.rip <- c(1, 1, 1, 1, 0, 2, 2, 1)
+dexp.loop = 1
+par(mfrow = c(2,2))
+
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Acinetobacter_Rip_replicates_coverage.pdf", height = 2.5, width = 4)
+  par(mfrow = c(2,2))
+  
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    color.rip <- '#e6194b90'
+  
+    #margins for figure
+    par(mar = c(4,5,1,1))
+  
+    #discontinuous y-axis: use multiplot
+    layout(matrix(c(2,2,1,1,1,1), nrow = 3, ncol = 2, byrow = TRUE))
+    
+    #plot riptide lower
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop), 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1.5), 
+         xlim = c(1,600), 
+         xlab = "depth of coverage", 
+         xaxt = "n",
+         yaxt = "n", 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         frame.plot = FALSE)
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    axis(side=1, cex.axis = 0.5, las = 1)
+    axis(side=2, at = c(0 , 0.5, 1, 1.5), labels = c("0","0.5", "1", "1.5"), 
+         cex.axis = 0.5, las = 1)
+    #plot expect riptide
+    abline(v = dexp.rip[dexp.loop], col='#e6194b90', lwd=1, lty=2)
+    
+    par(new = TRUE)
+    
+    #plot non-Riptide
+    plot(nrip.data$depth, 
+         as.numeric(nrip.data$depth_prop), 
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1.5),
+         xlim = c(1,600), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(x=c(1, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    #plot observed non-Riptide
+    x_2 <- nrip.data$depth
+    max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+    text(max_dp_nrip,
+         max(nrip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+         pos = 3)
+    #plot expect kapa
+    abline(v = 370, col='#e6194b30', lwd=1, lty=2)
+    
+    #plot 2 margins
+    par(mar = c(0,5,1,1))
+    
+    #plot riptide upper
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop),
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(10, 100), 
+         xlim = c(1,600), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n', 
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    #plot observed riptide
+    #remove first row for zero coverage to label local maxima (optional)
+    nz.rip.data <- rip.data[-c(1), ]
+    x_1 <- nz.rip.data$depth
+    #x_1 <- rip.data$depth
+    max_dp_rip <- x_1[which.max(nz.rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(nz.rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 4)
+    
+    axis(side=2, at = c(10, 50, 100), labels = c("10", "50", "100"), 
+         cex.axis = 0.5, las = 1)
+    #plot expect riptide
+    abline(v = dexp.rip[dexp.loop], col='#e6194b90', lwd=1, lty=2)
+    text(dexp.rip[dexp.loop], 30, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), 
+         pos = 3)
+    #plot expect kapa
+    abline(v = 370, col='#e6194b30', lwd=1, lty=2)
+    text(370, 80, 
+         cex = 0.5, 
+         labels = 'KE: 370X', 
+         pos = 3)
+    dexp.loop = dexp.loop + 1
+  }
+#optional pdf close
+#dev.off()
+
+```
+###Aspergillus 925
+
+```{r Asp.925, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/"
+files <- list.files(path=path, pattern="Afumigatus_925_coverage")
+
+dexp.rip <- c(278)
+dexp.loop = 1
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/VB1_nonRIPTIDE_solo_BEDTools_coverage.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#3cb44b30'
+
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Aspergillus_925_coverage.pdf", height = 2.5, width = 4)
+
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+    
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    
+    color.rip <- '#3cb44b90'
+    
+    
+    #margins for figure
+    par(mar = c(4,5,1,1))
+    
+    #discontinuous y-axis: use multiplot
+    layout(matrix(c(2,2,1,1,1,1), nrow = 3, ncol = 2, byrow = TRUE))
+    
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop), 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1), 
+         xlim = c(1,800), 
+         xlab = "depth of coverage", 
+         xaxt = "n",
+         yaxt = 'n', 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide lower
+    plot(nrip.data$depth, 
+         as.numeric(nrip.data$depth_prop), 
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1),
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    #remove first row for zero coverage to label local maxima (optional)
+    nz.rip.data <- rip.data[-c(1), ]
+    x_1 <- nz.rip.data$depth
+    max_dp_rip <- x_1[which.max(nz.rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(nz.rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 3)
+    #print(paste("Riptide local maxima=", max_dp_rip, sep = " "))
+    #plot line for expected Riptide depth, this was calculated elsewhere
+    abline(v = dexp.rip[dexp.loop], col='#3cb44b90', lwd=1, lty=2)
+    text(dexp.rip[dexp.loop], 0.5, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), pos = 3)
+    
+    #plot non-Riptide observed 
+    #remove first row for zero coverage to label local maxima (optional)
+    nrip.data <- nrip.data[-c(1), ]
+    x_2 <- nrip.data$depth
+    max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+    text(max_dp_nrip,
+         max(nrip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+         pos = 3)
+    
+    abline(v = 453, col='#3cb44b30', lwd=1, lty=2)
+    text(453, 0.5, 
+         cex = 0.5, 
+         labels = 'KE: 453X', 
+         pos = 3)
+    
+    axis(side=1, cex.axis = 0.5, las = 1)
+    axis(side=2, at = c(0, 0.5, 1), 
+         labels = c("0", "0.5", "1"), 
+         cex.axis = 0.5, 
+         las = 1)
+    
+    #plot 2 margins
+    par(mar = c(0,5,1,1))
+    
+    #plot 2 Riptide
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop),
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 10), 
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n', 
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide upper
+    plot(nrip.data$depth,
+         as.numeric(nrip.data$depth_prop),
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 10), 
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip))
+    
+    
+    axis(side=2, at = c(5, 10), labels = c("5", "10"), 
+         cex.axis = 0.5, las = 1)
+    abline(v = dexp.rip[dexp.loop], col='#3cb44b90', lwd=1, lty=2)
+    
+    #KAPA expect
+    abline(v = 453, col='#3cb44b30', lwd=1, lty=2)
+    dexp.loop = dexp.loop + 1
+  }
+
+#optional pdf close
+#dev.off()
+
+```
+
+###Aspergillus 928
+
+```{r Asp.928, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/"
+files <- list.files(path=path, pattern="Afumigatus_928_coverage")
+
+dexp.rip <- c(222)
+dexp.loop = 1
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/VB4_nonRIPTIDE_solo_BEDTools_coverage.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#3cb44b30'
+
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Aspergillus_928_coverage.pdf", height = 2.5, width = 4)
+
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+    
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    
+    color.rip <- '#3cb44b90'
+    
+    
+    #margins for figure
+    par(mar = c(4,5,1,1))
+    
+    #discontinuous y-axis: use multiplot
+    layout(matrix(c(2,2,1,1,1,1), nrow = 3, ncol = 2, byrow = TRUE))
+    
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop), 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1), 
+         xlim = c(1,800), 
+         xlab = "depth of coverage", 
+         xaxt = "n",
+         yaxt = 'n', 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide lower
+    plot(nrip.data$depth, 
+         as.numeric(nrip.data$depth_prop), 
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1),
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    #remove first row for zero coverage to label local maxima (optional)
+    nz.rip.data <- rip.data[-c(1), ]
+    x_1 <- nz.rip.data$depth
+    max_dp_rip <- x_1[which.max(nz.rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(nz.rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 3)
+    #print(paste("Riptide local maxima=", max_dp_rip, sep = " "))
+    #plot line for expected Riptide depth, this was calculated elsewhere
+    abline(v = dexp.rip[dexp.loop], col='#3cb44b90', lwd=1, lty=2)
+    text(dexp.rip[dexp.loop], 0.5, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), pos = 3)
+    
+    #plot non-Riptide observed 
+    #remove first row for zero coverage to label local maxima (optional)
+    nrip.data <- nrip.data[-c(1), ]
+    x_2 <- nrip.data$depth
+    max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+    text(max_dp_nrip,
+         max(nrip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+         pos = 3)
+    
+    abline(v = 432, col='#3cb44b30', lwd=1, lty=2)
+    text(432, 0.5, 
+         cex = 0.5, 
+         labels = 'KE: 432X', 
+         pos = 3)
+    
+    axis(side=1, cex.axis = 0.5, las = 1)
+    axis(side=2, at = c(0, 0.5, 1), 
+         labels = c("0", "0.5", "1"), 
+         cex.axis = 0.5, 
+         las = 1)
+    
+    #plot 2 margins
+    par(mar = c(0,5,1,1))
+    
+    #plot 2 Riptide
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop),
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 10), 
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n', 
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide upper
+    plot(nrip.data$depth,
+         as.numeric(nrip.data$depth_prop),
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 10), 
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip))
+    
+    
+    axis(side=2, at = c(5, 10), labels = c("5", "10"), 
+         cex.axis = 0.5, las = 1)
+    abline(v = dexp.rip[dexp.loop], col='#3cb44b90', lwd=1, lty=2)
+    
+    #KAPA expect
+    abline(v = 432, col='#3cb44b30', lwd=1, lty=2)
+    dexp.loop = dexp.loop + 1
+  }
+
+#optional pdf close
+#dev.off()
+
+```
+
+###Aspergillus H7810724
+```{r Asp.H7810724, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/"
+files <- list.files(path=path, pattern="Afumigatus_H7810724_coverage")
+
+#dexp.rip <- c(278, 222, 463, 138)
+dexp.rip <- c(463)
+dexp.loop = 1
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/VB3_nonRIPTIDE_solo_BEDTools_coverage.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#3cb44b30'
+
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Aspergillus_H7810724_coverage.pdf", height = 2.5, width = 4)
+
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+    
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    
+    color.rip <- '#3cb44b90'
+    
+    
+    #margins for figure
+    par(mar = c(4,5,1,1))
+    
+    #discontinuous y-axis: use multiplot
+    layout(matrix(c(2,2,1,1,1,1), nrow = 3, ncol = 2, byrow = TRUE))
+    
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop), 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1), 
+         xlim = c(1,800), 
+         xlab = "depth of coverage", 
+         xaxt = "n",
+         yaxt = 'n', 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide lower
+    plot(nrip.data$depth, 
+         as.numeric(nrip.data$depth_prop), 
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1),
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    #remove first row for zero coverage to label local maxima (optional)
+    nz.rip.data <- rip.data[-c(1), ]
+    x_1 <- nz.rip.data$depth
+    #x_1 <- rip.data$depth
+    max_dp_rip <- x_1[which.max(nz.rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(nz.rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 3)
+    #print(paste("Riptide local maxima=", max_dp_rip, sep = " "))
+    #plot line for expected Riptide depth, this was calculated elsewhere
+    abline(v = dexp.rip[dexp.loop], col='#3cb44b90', lwd=1, lty=2)
+    text(dexp.rip[dexp.loop], 0.5, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), pos = 3)
+    
+    #plot non-Riptide observed 
+    #remove first row for zero coverage to label local maxima (optional)
+    nrip.data <- nrip.data[-c(1), ]
+    x_2 <- nrip.data$depth
+    max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+    text(max_dp_nrip,
+         max(nrip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+         pos = 4)
+    
+    abline(v = 436, col='#3cb44b30', lwd=1, lty=2)
+    text(436, 0.5, 
+         cex = 0.5, 
+         labels = 'KE: 436X', 
+         pos = 3)
+    
+    axis(side=1, cex.axis = 0.5, las = 1)
+    axis(side=2, at = c(0, 0.5, 1), 
+         labels = c("0", "0.5", "1"), 
+         cex.axis = 0.5, 
+         las = 1)
+    
+    #axis(side=1, cex.axis = 0.5, las = 1)
+    
+    #axis(side=2, at = c(0 ,0.005, 0.01), labels = c("0","0.005", "0.01"), 
+         #cex.axis = 0.5, las = 1)
+    
+    #plot 2 margins
+    par(mar = c(0,5,1,1))
+    
+    #plot 2 Riptide
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop),
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 10), 
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n', 
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide upper
+    plot(nrip.data$depth,
+         as.numeric(nrip.data$depth_prop),
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 10), 
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip))
+    
+    
+    axis(side=2, at = c(5, 10), labels = c("5", "10"), 
+         cex.axis = 0.5, las = 1)
+    abline(v = dexp.rip[dexp.loop], col='#3cb44b90', lwd=1, lty=2)
+    
+    #KAPA expect
+    abline(v = 436, col='#3cb44b30', lwd=1, lty=2)
+    dexp.loop = dexp.loop + 1
+  }
+
+#optional pdf close
+dev.off()
+
+```
+###Aspergillus T8015994
+```{r Asp.T8015994, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/"
+files <- list.files(path=path, pattern="Afumigatus_T8015994_coverage")
+
+dexp.rip <- c(138)
+dexp.loop = 1
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/VB4_nonRIPTIDE_solo_BEDTools_coverage.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#3cb44b30'
+
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Aspergillus_T8015994_coverage.pdf", height = 2.5, width = 4)
+
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+    
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    
+    color.rip <- '#3cb44b90'
+    
+    
+    #margins for figure
+    par(mar = c(4,5,1,1))
+    
+    #discontinuous y-axis: use multiplot
+    layout(matrix(c(2,2,1,1,1,1), nrow = 3, ncol = 2, byrow = TRUE))
+    
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop), 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1), 
+         xlim = c(1,800), 
+         xlab = "depth of coverage", 
+         xaxt = "n",
+         yaxt = 'n', 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide lower
+    plot(nrip.data$depth, 
+         as.numeric(nrip.data$depth_prop), 
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 1),
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    #remove first row for zero coverage to label local maxima (optional)
+    nz.rip.data <- rip.data[-c(1), ]
+    x_1 <- nz.rip.data$depth
+    max_dp_rip <- x_1[which.max(nz.rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(nz.rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 3)
+    #print(paste("Riptide local maxima=", max_dp_rip, sep = " "))
+    #plot line for expected Riptide depth, this was calculated elsewhere
+    abline(v = dexp.rip[dexp.loop], col='#3cb44b90', lwd=1, lty=2)
+    text(dexp.rip[dexp.loop], 0.5, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), pos = 3)
+    
+    #plot non-Riptide observed 
+    #remove first row for zero coverage to label local maxima (optional)
+    nrip.data <- nrip.data[-c(1), ]
+    x_2 <- nrip.data$depth
+    max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+    text(max_dp_nrip,
+         max(nrip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+         pos = 3)
+    
+    abline(v = 500, col='#3cb44b30', lwd=1, lty=2)
+    text(500, 0.5, 
+         cex = 0.5, 
+         labels = 'KE: 500X', 
+         pos = 3)
+    
+    axis(side=1, cex.axis = 0.5, las = 1)
+    axis(side=2, at = c(0, 0.5, 1), 
+         labels = c("0", "0.5", "1"), 
+         cex.axis = 0.5, 
+         las = 1)
+    
+    #plot 2 margins
+    par(mar = c(0,5,1,1))
+    
+    #plot 2 Riptide
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop),
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 10), 
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n', 
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(1, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide upper
+    plot(nrip.data$depth,
+         as.numeric(nrip.data$depth_prop),
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 10), 
+         xlim = c(1,800), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip))
+    
+    
+    axis(side=2, at = c(5, 10), labels = c("5", "10"), 
+         cex.axis = 0.5, las = 1)
+    abline(v = dexp.rip[dexp.loop], col='#3cb44b90', lwd=1, lty=2)
+    
+    #KAPA expect
+    abline(v = 500, col='#3cb44b30', lwd=1, lty=2)
+    dexp.loop = dexp.loop + 1
+  }
+
+#optional pdf close
+#dev.off()
+
+```
+
+
+###Cryptosporidium replicates
+```{r Cp rep, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/"
+files <- list.files(path=path, pattern="JD8_L007_coverage")
+
+dexp.rip <- c(5, 6, 11)
+dexp.loop = 1
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/IL100070795_S50_L005_coverage_Cryptosporidium.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#4363d830'
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Cryptosporidium_Rip_replicates_coverage.pdf", height = 2.5, width = 4)
+
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+    
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    color.rip <- '#4363d890'
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    
+    #margins for figure
+    par(mar = c(4,5,1,1))
+    
+    #discontinuous y-axis: use multiplot
+    layout(matrix(c(2,2,1,1,1,1), nrow = 3, ncol = 2, byrow = TRUE))
+    
+    #plot riptide lower
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop), 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 3), 
+         xlim = c(1,600), 
+         xlab = "depth of coverage", 
+         xaxt = "n",
+         yaxt = 'n', 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(0, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    #plot Riptide expected 
+    abline(v = dexp.rip[dexp.loop], col='#4363d890', lwd=1, lty=2)
+  
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide lower
+    plot(nrip.data$depth, 
+         as.numeric(nrip.data$depth_prop), 
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 3),
+         xlim = c(1,600), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    #plot non-Riptide observed 
+    x_2 <- nrip.data$depth
+    max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+    text(max_dp_nrip,
+         max(nrip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+         pos = 3)
+    axis(side=1, cex.axis = 0.5, las = 1)
+    axis(side=2, at = c(0 , 1, 2, 3), 
+         labels = c("0","1", "2", "3"), 
+         cex.axis = 0.5, 
+         las = 1)
+    
+    #plot KAPA expect
+    abline(v = 225, col='#4363d830', lwd=1, lty=2)
+    text(225, 0.5, 
+         cex = 0.5, 
+         labels = 'KE: 225X', 
+         pos = 3)
+    
+    #plot 2 margins
+    par(mar = c(0,5,1,1))
+    
+    #plot riptide upper
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop),
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 15), 
+         xlim = c(1,600), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n', 
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(0, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    #plot riptide observed
+    x_1 <- rip.data$depth
+    max_dp_rip <- x_1[which.max(rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 4)
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide upper
+    plot(nrip.data$depth,
+         as.numeric(nrip.data$depth_prop),
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(5, 15), 
+         xlim = c(1,600), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    axis(side=2, at = c(5, 10, 15), labels = c("5", "10","15"), 
+         cex.axis = 0.5, las = 1)
+    
+    #plot Riptide expected
+    abline(v = dexp.rip[dexp.loop], col='#4363d890', lwd=1, lty=2)
+    text(dexp.rip[dexp.loop], 6, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), pos = 3)
+    
+    #plot KAPA expect
+    abline(v = 225, col='#4363d830', lwd=1, lty=2)
+    dexp.loop = dexp.loop + 1
+  }
+
+#optional pdf close
+#dev.off()
+```
+
+###Ecoli replicates
+```{r Ec.rep, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/"
+files <- list.files(path=path, pattern="*Ecoli_L007_coverage")
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/RDRIP_20190111_K00134_IL100117483_MX6_L001_coverage_Ecoli.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#f5823130'
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+dexp.rip <- c(226, 245, 180, 228, 169, 196, 141, 188, 154, 164)
+dexp.loop = 1
+
+
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Ecoli_Rip_replicates_coverage.pdf", height = 2.5, width = 4)
+
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+  
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    color.rip <- '#f5823190'
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    
+    #set margins for plot 
+    par(mar = c(4,5,1,1))
+
+    # plot riptide 
+    plot(rip.data$depth, 
+         rip.data$depth_prop, 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2,
+         xaxt = "n",
+         yaxt = "n",
+         xlim = c(1,600),
+         ylim = c(0,2),
+         xlab = "depth of coverage", 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    polygon(c(0, rip.data$depth),
+      c(0,rip.data$depth_prop), 
+      col=c(color.rip)) 
+    
+    #plot riptide observed
+    x_1 <- rip.data$depth
+    max_dp_rip <- x_1[which.max(rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 3)
+    
+    axis(side=1, 
+         at = c(0, 100, 200, 300, 400, 500, 600), 
+         labels = c("0", "100", "200", "300", "400", "500", "600"), 
+         cex.axis = 0.5, 
+         las = 1)
+    axis(side=2,
+         cex.axis = 0.5, 
+         las = 1)
+         
+  #plot riptide expect
+  abline(v = dexp.rip[dexp.loop], col='#f5823190', lwd=1, lty=2)
+  text(dexp.rip[dexp.loop], max(rip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), 
+       pos = 3)
+  dexp.loop = dexp.loop + 1
+  
+  par(new = TRUE)
+  #plot non-riptide
+  plot(nrip.data$depth, 
+       nrip.data$depth_prop, 
+       col=c(color.nrip), 
+       type = 'l', 
+       lwd = 2, 
+       xlim = c(1,600),
+       ylim = c(0,2),
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(c(0, nrip.data$depth),
+          c(0, nrip.data$depth_prop), 
+          col=c(color.nrip)) 
+  
+  axis(side=1, 
+       at = c(0, 100, 200, 300, 400, 500, 600), 
+       labels = c("0", "100", "200", "300", "400", "500", "600"), 
+       cex.axis = 0.5, 
+       las = 1)
+  axis(side=2,
+       cex.axis = 0.5, 
+       las = 1)
+       
+  #plot non-Riptide observed
+  x_2 <- nrip.data$depth
+  max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+  text(max_dp_nrip,
+       max(nrip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+       pos = 3)
+  #plot expected depth for KAPA, this was calculated elsewhere
+  abline(v = 315, col='#f5823130', lwd=1, lty=2)
+  text(315, max(rip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'KE: 315X', 
+       pos = 3)
+  
+  }
+
+#dev.off()
+
+
+```
+
+###Klebsiella replicates
+```{r Kp.rep, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/"
+files <- list.files(path=path, pattern="*Kleb_L007_coverage")
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/RDRIP_20190111_K00134_IL100117486_MX9_L001_coverage_Klebsiella.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#911eb430'
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+
+dexp.rip <- c(84, 64, 91, 202)
+dexp.loop = 1
+
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Klebsiella_Rip_replicates_coverage.pdf", height = 2.5, width = 4)
+
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+  
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    color.rip <- '#911eb490'
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    
+    #set margins for plot 
+    par(mar = c(4,5,1,1))
+    
+    #plot riptide 
+    plot(rip.data$depth, 
+         rip.data$depth_prop, 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2,
+         xaxt = "n",
+         yaxt = "n",
+         xlim = c(1,600),
+         ylim = c(0,2),
+         xlab = "depth of coverage", 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    polygon(c(0, rip.data$depth),
+      c(0,rip.data$depth_prop), 
+      col=c(color.rip)) 
+    
+    #plot riptide observed
+    x_1 <- rip.data$depth
+    max_dp_rip <- x_1[which.max(rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 3)
+    #plot Riptide expected
+    abline(v = dexp.rip[dexp.loop], col='#911eb490', lwd=1, lty=2)
+    text(dexp.rip[dexp.loop], max(rip.data$depth_prop)/2, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), 
+         pos = 3)
+    dexp.loop = dexp.loop + 1
+    
+    par(new=TRUE)
+  
+    #plot non-riptide 
+    plot(nrip.data$depth, 
+         nrip.data$depth_prop, 
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         xlim = c(1,600),
+         ylim = c(0,2),
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(c(0, nrip.data$depth),
+            c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    axis(side=1, 
+         at = c(0, 100, 200, 300, 400, 500, 600), 
+         labels = c("0", "100", "200", "300", "400", "500", "600"), 
+         cex.axis = 0.5, 
+         las = 1)
+    axis(side=2,
+         cex.axis = 0.5, 
+         las = 1)
+    
+    #plot non-Riptide observed
+    x_2 <- nrip.data$depth
+    max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+    text(max_dp_nrip,
+         max(nrip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+         pos = 3)
+    
+    #plot expected depth for KAPA, this was calculated elsewhere
+    abline(v = 247, col='#911eb430', lwd=1, lty=2)
+    text(247, max(nrip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'KE: 247X', 
+       pos = 3)
+  }
+
+#dev.off()
+
+
+```
+
+###pB171 replicates
+```{r pB.rep, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/"
+files <- list.files(path=path, pattern="*pB171_L007_coverage")
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/RDRIP_20190111_K00134_IL100117487_MX10_L001_coverage_pB171.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#46f0f030'
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+dexp.rip <- c(1157, 1106, 1814, 1127)
+dexp.loop = 1
+
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/pB171_Rip_replicates_coverage.pdf", height = 2.5, width = 4)
+
+
+for (file in files) {
+  rip.data <- read.table(file, header = F, sep = '\t')
+
+  colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+  color.rip <- '#46f0f090'
+  rip.data$depth_prop <- rip.data$depth_prop * 100
+  
+  #set margins for plot 
+  par(mar = c(4,5,1,1))
+  
+  #plot riptide 
+  plot(rip.data$depth, 
+       rip.data$depth_prop, 
+       col=c(color.rip), 
+       type = 'l', 
+       lwd = 2,
+       xaxt = "n",
+       yaxt = "n",
+       xlim = c(1,2500),
+       ylim = c(0,0.3),
+       xlab = "depth of coverage", 
+       ylab = "percentage of genome", 
+       cex.lab = 0.6,
+       main = toString(file),
+       cex.main = 0.75, 
+       frame.plot = FALSE)
+  
+  polygon(c(0, rip.data$depth),
+    c(0,rip.data$depth_prop), 
+    col=c(color.rip)) 
+  
+  axis(side=1, 
+       at = c(0, 500, 1000, 1500, 2000, 2500), 
+       labels = c("0", "500", "1000", "1500", "2000", "2500"), 
+       cex.axis = 0.5, 
+       las = 1)
+  axis(side=2,
+       cex.axis = 0.5, 
+       las = 1)
+  
+  #plot riptide observed 
+  x_1 <- rip.data$depth
+  max_dp_rip <- x_1[which.max(rip.data$depth_prop)]
+  text(max_dp_rip,
+       max(rip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+       pos = 3)
+  
+  #plot riptide expected
+  abline(v = dexp.rip[dexp.loop], col='#46f0f090', lwd=1, lty=2)
+  text(dexp.rip[dexp.loop], max(rip.data$depth_prop)/2, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), 
+         pos = 3)
+  dexp.loop = dexp.loop + 1
+       
+  par(new=TRUE)
+  
+  #plot non-riptide 
+  plot(nrip.data$depth, 
+       nrip.data$depth_prop, 
+       col=c(color.nrip), 
+       type = 'l', 
+       xlim = c(1,2500),
+       ylim = c(0,0.3),
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(c(0, nrip.data$depth),
+          c(0, nrip.data$depth_prop), 
+          col=c(color.nrip)) 
+  
+  axis(side=1, 
+       at = c(0, 500, 1000, 1500, 2000, 2500), 
+       labels = c("0", "500", "1000", "1500", "2000", "2500"), 
+       cex.axis = 0.5, 
+       las = 1)
+  
+  #plot non-Riptide observed 
+  x_2 <- nrip.data$depth
+  max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+  text(max_dp_nrip,
+       max(nrip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+       pos = 3)
+  
+  #plot expected depth for KAPA, this was calculated elsewhere
+  abline(v = 2303, col='#46f0f030', lwd=1, lty=2)
+  text(2303, max(nrip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'KE: 2303X', 
+       pos = 3)
+  
+  
+}
+
+#dev.off()
+```
+
+###Plasmodium merged datasets
+```{r Pf, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+rip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Pfalciparum_RIPTIDE_merged_BEDtools_coverage.bed"
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Pfalciparum_nonRIPTIDE_BEDTools_coverage"
+
+rip.data <- read.table(rip.path, header = F, sep = '\t')
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+rip.data$depth_prop <- rip.data$depth_prop * 100
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+color.rip <- '#f032e690'
+color.nrip <- '#f032e630'
+
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Plasmodium_Rip_merged_coverage.pdf", height = 2.5, width = 4)
+  
+  #set margins for plot 
+  par(mar = c(4,5,1,1))
+  
+  #plot riptide
+  plot(rip.data$depth, 
+       rip.data$depth_prop, 
+       col=c(color.rip), 
+       type = 'l', 
+       lwd = 2,
+       xaxt = "n",
+       yaxt = "n",
+       xlim = c(1,600),
+       ylim = c(0,3),
+       xlab = "depth of coverage", 
+       ylab = "percentage of genome", 
+       cex.lab=0.6,
+       frame.plot = FALSE)
+  
+  polygon(c(0, rip.data$depth),
+    c(0,rip.data$depth_prop), 
+    col=c(color.rip)) 
+  
+  #plot riptide observed 
+  x_1 <- rip.data$depth
+  max_dp_rip <- x_1[which.max(rip.data$depth_prop)]
+  text(max_dp_rip,
+       max(rip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+       pos = 3)
+  
+  #plot riptide expected 
+  abline(v = 267, col='#f032e690', lwd=1, lty=2)
+  text(267, max(rip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'RE: 267X', 
+       pos = 3)
+  
+  par(new=TRUE)
+  
+  #plot non-riptide 
+  plot(nrip.data$depth, 
+       nrip.data$depth_prop, 
+       col=c(color.nrip), 
+       type = 'l', 
+       lwd = 2, 
+       xlim = c(1,600),
+       ylim = c(0,3),
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(c(0, nrip.data$depth),
+          c(0, nrip.data$depth_prop), 
+          col=c(color.nrip)) 
+  
+  axis(side=1, 
+       at = c(0, 100, 200, 300, 400, 500, 600), 
+       labels = c("0", "100", "200", "300", "400", "500", "600"), 
+       cex.axis = 0.5, 
+       las = 1)
+  axis(2, 
+       cex.axis = 0.5,
+       las=1)
+  
+  #plot non-Riptide observed
+  x_2 <- nrip.data$depth
+  max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+  text(max_dp_nrip,
+       max(nrip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+       pos = 3)
+  
+  #plot KAPA expected 
+  abline(v = 410, col='#f032e630', lwd=1, lty=2)
+  text(410, max(nrip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'KE: 410X', 
+       pos = 3)
+
+
+#dev.off()
+
+
+```
+
+###Shigella replicates
+```{r Sb rep, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/"
+files <- list.files(path=path, pattern="*Shigella_L007_coverage")
+
+dexp.rip <- c(2, 2, 2, 2, 3, 4, 3, 3)
+dexp.loop = 1
+
+nrip.path = "Y:/RDRIP/etvedte/non-RIPTIDE/Depth_of_Coverage/RDRIP_20190111_K00134_IL100117790_MX7_L001_REDUX_TRIM_coverage_Shigella.bed"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#bcf60c30'
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+#optional pdf output
+pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Shigella_Rip_replicates_coverage.pdf", height = 2.5, width = 4)
+
+  for (file in files) {
+    rip.data <- read.table(file, header = F, sep = '\t')
+  
+    colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+    color.rip <- '#bcf60c90'
+    rip.data$depth_prop <- rip.data$depth_prop * 100
+    
+    #set margins for plot 
+    par(mar = c(4,5,1,1))
+    
+    #discontinuous y-axis: use multiplot
+    layout(matrix(c(2,2,1,1,1,1), nrow = 3, ncol = 2, byrow = TRUE))
+    
+    #plot riptide lower
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop), 
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(0, 3), 
+         xlim = c(1,600), 
+         xlab = "depth of coverage", 
+         xaxt = "n",
+         yaxt = 'n', 
+         ylab = "percentage of genome", 
+         cex.lab = 0.6,
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    #plot expected depth for Riptide, this was calculated elsewhere
+    abline(v = dexp.rip[dexp.loop], col='#bcf60c90', lwd=1, lty=2)
+    
+    par(new=TRUE)
+    
+    #plot non-riptide lower
+    plot(nrip.data$depth, 
+         as.numeric(nrip.data$depth_prop), 
+         col=c(color.nrip), 
+         type = 'l', 
+         #lwd = 2, 
+         ylim = c(0, 3),
+         xlim = c(1,600), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop), 
+            col=c(color.nrip)) 
+    
+    #plot observed depth for non-Riptide
+    x_2 <- nrip.data$depth
+    max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+    text(max_dp_nrip,
+         max(nrip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+         pos = 3)
+    axis(side=1,
+         cex.axis = 0.5, 
+         las = 1)
+    axis(side=2, at = c(0 , 1, 2, 3), 
+         labels = c("0","1", "2", "3"), 
+         cex.axis = 0.5, 
+         las = 1)
+    
+    #plot KAPA expected 
+    abline(v = 167, col='#bcf60c30', lwd=1, lty=2)
+    text(167, max(nrip.data$depth_prop)/2, 
+       cex = 0.5, 
+       labels = 'KE: 167X', 
+       pos = 3)
+  
+    #plot 2 margins
+    par(mar = c(0,5,1,1))
+    
+    #plot riptide upper
+    plot(rip.data$depth, 
+         as.numeric(rip.data$depth_prop),
+         col=c(color.rip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(10, 40), 
+         xlim = c(1,600), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n', 
+         ylab = "", 
+         main = toString(file),
+         cex.main = 0.75, 
+         frame.plot = FALSE)
+    
+    
+    polygon(x=c(0, rip.data$depth),
+            y=c(0, rip.data$depth_prop), 
+            col=c(color.rip)) 
+    
+    #plot Riptide observed 
+    nz.rip.data <- rip.data[-c(1), ]
+    x_1 <- nz.rip.data$depth
+    max_dp_rip <- x_1[which.max(nz.rip.data$depth_prop)]
+    text(max_dp_rip,
+         max(nz.rip.data$depth_prop), 
+         cex = 0.5, 
+         labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+         pos = 4)
+    
+    par(new=TRUE)
+    
+    #plot non-Riptide upper
+    plot(nrip.data$depth,
+         as.numeric(nrip.data$depth_prop),
+         col=c(color.nrip), 
+         type = 'l', 
+         lwd = 2, 
+         ylim = c(10, 40), 
+         xlim = c(1,600), 
+         xlab = "", 
+         xaxt = 'n', 
+         yaxt = 'n',
+         ylab = "", 
+         frame.plot = FALSE)
+    
+    polygon(x=c(0, nrip.data$depth),
+            y=c(0, nrip.data$depth_prop),
+            border = NA,
+            col=c(color.nrip)) 
+    
+    axis(side=2, at = c(10, 20, 30, 40), 
+         labels = c("10", "20","30", "40"), 
+         cex.axis = 0.5,
+         las = 1)
+    
+    #plot expected depth for Riptide, this was calculated elsewhere
+    abline(v = dexp.rip[dexp.loop], col='#bcf60c90', lwd=1, lty=2)
+    text(dexp.rip[dexp.loop], max(rip.data$depth_prop)/2, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), 
+         pos = 3)
+    #plot KAPA expected
+    #plot KAPA expected 
+    abline(v = 167, col='#bcf60c30', lwd=1, lty=2)
+    
+    dexp.loop = dexp.loop + 1
+  }
+
+#optional pdf close
+dev.off()
+
+
+
+```
+
+###Theileria replicates
+```{r Tp.rep, fig.align="center", fig.height=2, fig.width=3.5, echo=FALSE}
+
+setwd("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/")
+path <- "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/"
+files <- list.files(path=path, pattern="*JD7_L007_coverage")
+
+nrip.path = "Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Tparva_nonRIPTIDE_BEDTools_coverage"
+nrip.data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(nrip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+color.nrip <- '#fabebe30'
+nrip.data$depth_prop <- nrip.data$depth_prop * 100
+
+dexp.rip <- c(150, 133, 157, 161)
+dexp.loop = 1
+
+#pdf("Y:/RDRIP/etvedte/Depth_of_Coverage/BEDtools/Theileria_Rip_replicates_coverage.pdf", height = 2.5, width = 4)
+
+for (file in files) {
+  rip.data <- read.table(file, header = F, sep = '\t')
+
+  colnames(rip.data) <- c("name", "depth", "num_positions", "num_total", "depth_prop")
+  color.rip <- '#fabebe90'
+  rip.data$depth_prop <- rip.data$depth_prop * 100
+  
+  #set margins for plot 
+  par(mar = c(4,5,1,1))
+  
+  #plot riptide 
+  plot(rip.data$depth, 
+       rip.data$depth_prop, 
+       col=c(color.rip), 
+       type = 'l', 
+       lwd = 2,
+       xaxt = "n",
+       yaxt = "n",
+       xlim = c(1,600),
+       ylim = c(0,1),
+       xlab = "depth of coverage", 
+       ylab = "percentage of genome", 
+       cex.lab = 0.6,
+       main = toString(file),
+       cex.main = 0.75,
+       frame.plot = FALSE)
+  
+  polygon(c(0, rip.data$depth),
+    c(0,rip.data$depth_prop), 
+    col=c(color.rip)) 
+  
+  #plot riptide observed 
+  x_1 <- rip.data$depth
+  max_dp_rip <- x_1[which.max(rip.data$depth_prop)]
+  text(max_dp_rip,
+       max(rip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('RO: ', toString(max_dp_rip), 'X', sep = ''), 
+       pos = 3)
+  
+  axis(side=1, 
+       at = c(0, 100, 200, 300, 400, 500, 600), 
+       labels = c("0", "100", "200", "300", "400", "500", "600"), 
+       cex.axis = 0.5, 
+       las = 1)
+  axis(side=2,
+       cex.axis = 0.5, 
+       las = 1)
+  
+  #plot riptide expected     
+  abline(v = dexp.rip[dexp.loop], col='#fabebe90', lwd=1, lty=2)
+  text(dexp.rip[dexp.loop], max(rip.data$depth_prop)/2, 
+         cex = 0.5, 
+         labels = paste('RE: ', toString(dexp.rip[dexp.loop]), 'X', sep = ''), 
+         pos = 3)
+  dexp.loop = dexp.loop + 1
+  
+  par(new=TRUE)
+  
+  #plot non-Riptide
+  plot(nrip.data$depth, 
+       nrip.data$depth_prop, 
+       col=c(color.nrip), 
+       type = 'l', 
+       lwd = 2, 
+       xlim = c(1,600),
+       ylim = c(0,1),
+       xlab = "", 
+       xaxt = 'n', 
+       yaxt = 'n',
+       ylab = "", 
+       frame.plot = FALSE)
+  
+  polygon(c(0, nrip.data$depth),
+          c(0, nrip.data$depth_prop), 
+          col=c(color.nrip)) 
+  
+  axis(side=1, 
+       at = c(0, 100, 200, 300, 400, 500, 600), 
+       labels = c("0", "100", "200", "300", "400", "500", "600"), 
+       cex.axis = 0.5, 
+       las = 1)
+   axis(side=2, 
+       cex.axis = 0.5, 
+       las = 1)
+  
+  #plot observed depth for non-Riptide
+  x_2 <- nrip.data$depth
+  max_dp_nrip <- x_2[which.max(nrip.data$depth_prop)]
+  text(max_dp_nrip,
+       max(nrip.data$depth_prop), 
+       cex = 0.5, 
+       labels = paste('KO: ', toString(max_dp_nrip), 'X', sep = ''), 
+       pos = 3)
+  #plot KAPA expected     
+  abline(v = 424, col='#fabebe30', lwd=1, lty=2)
+  text(424, max(nrip.data$depth_prop)/2, 
+         cex = 0.5, 
+         labels = 'KE: 424X', 
+         pos = 3)
+  
+}
+
+#dev.off()
+
+
+```
+
+```{r session_info, echo = FALSE}
+sessionInfo()
+#devtools::session_info()
+```
+
+Document processed on: `r Sys.Date()` .
+

@@ -1,0 +1,718 @@
+---
+title: 'File S3: GC bias assessment'
+author: "Eric S. Tvedte"
+date: "February 17, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Usage
+
+Picard CollectGCBiasMetrics was used on Riptide and KAPA libraries to assess potential bias in sequencing depth across genomes. 
+
+Windows with normalized coverage >2 are omitted from the analysis, shown as warnings when running the script.
+
+##Aspergillus Riptide
+```{r GC.Asp, fig.width=3, fig.height=3, fig.align='center'}
+library("ggplot2")
+library("gtable")
+library("grid")
+#library("gridExtra")
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Afumigatus_VB1_merge_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/VB1_RIPTIDE_solo_GCbias_fmt.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#3cb44b')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+
+##Aspergillus KAPA
+```{r GC.Asp.K, fig.width=3, fig.height=3, fig.align='center'}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/VB1_nonRIPTIDE_solo_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/VB1_nonRIPTIDE_solo_GCbias_fmt.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#3cb44b')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+
+##Brugia Riptide
+
+```{r GC.Bp, fig.width=3, fig.height=3, fig.align='center'}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Brugia_Riptide_merge_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Brugia_Riptide_merge_GCbias_fmt.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#ffe119')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+
+##Brugia KAPA
+```{r GC.Bp.K, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Brugia_KAPA_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Brugia_KAPA_GCbias_fmt.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#ffe119')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+##Ecoli Riptide
+```{r GC.Ec, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/RDRIP_20180711_K00134_IL100105221_AGCTAGCT-Ecoli_L007_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Ecoli_RIPTIDE_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#f58231')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+
+##Ecoli KAPA
+```{r GC.Ec.K, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/RDRIP_20190111_K00134_IL100117483_MX6_L001_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Ecoli_nonRIPTIDE_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#f58231')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+##Klebsiella Riptide
+```{r GC.Kp, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/RDRIP_20180711_K00134_IL100105221_CTACCATC-Kleb_L007_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Klebsiella_RIPTIDE_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#911eb4')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+
+##Klebsiella KAPA
+```{r GC.Kp.K, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/RDRIP_20190111_K00134_IL100117486_MX9_L001_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Klebsiella_nonRIPTIDE_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#911eb4')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+##pB171 Riptide
+```{r GC.pB, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/RDRIP_20180711_K00134_IL100105221_TCGAGTTG-pB171_L007_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/pB171_RIPTIDE_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#46f0f0')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+
+##pB171 KAPA
+```{r GC.pB.K, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/RDRIP_20190111_K00134_IL100117487_MX10_L001_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/pB171_nonRIPTIDE_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#46f0f0')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+##Plasmodium Riptide
+
+```{r GC.Pf, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Plasmodium_Riptide_merged_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Plasmodium_Riptide_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#f032e6')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+
+##Plasmodium KAPA
+```{r GC.Pf.K, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Plasmodium_KAPA_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Plasmodium_nonRiptide_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#f032e6')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+##Theileria Riptide
+```{r GC.Tp, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/RDRIP_20180711_K00134_IL100105221_GAGTTCTG-JD7_L007_GCbias_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Theileria_Riptide_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#fabebe')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+
+##Theileria KAPA
+```{r GC.Tp.K, fig.width=3, fig.height=3, fig.align='center', echo=FALSE}
+library("ggplot2")
+library("gtable")
+library("grid")
+
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Tparva_nonRIPTIDE_solo_GCbiasmetrics_fmt.txt"
+GC.data <- read.table(in.path, header = T, sep = '\t')
+
+GC.data$WINDOWS <- GC.data$WINDOWS / 1000000
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+bottom_theme = theme(axis.title.x = element_text(size = 8), axis.text.x = element_text(size = 8), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#optional pdf open
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/GC_bias/Theileria_nonRIPTIDE_GCbias.pdf", width = 3, height = 3)
+
+  plt1 <- ggplot(GC.data, aes(x=GC, y=WINDOWS)) +
+       labs(x="GC% of 100bp windows", y="genome windows (millions)") +
+       scale_x_continuous(limits=c(0,100)) +
+       geom_bar(stat="identity", fill=c('#fabebe')) +
+       theme_bw() +
+       bottom_theme
+     
+  g1 <- ggplotGrob(plt1)     
+  
+  plt2 <- ggplot(GC.data, aes(x=GC, y=NORMALIZED_COVERAGE)) +
+       geom_point(size = 0.75) +
+       scale_x_continuous(limits=c(0,100)) +
+       scale_y_continuous(limits=c(0,2)) +
+       geom_hline(yintercept=1, color = c('#000000')) + 
+       labs(x=NULL, y="normalized depth") +
+       theme_bw() +
+       top_theme
+  
+  g2 <- ggplotGrob(plt2) 
+  
+  g <- rbind(g2, g1, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
+  grid.newpage()
+  grid.draw(g)
+  
+ #optional pdf close 
+#dev.off()
+
+
+```
+
+```{r session_info, echo = FALSE}
+sessionInfo()
+#devtools::session_info()
+```
+
+Document processed on: `r Sys.Date()` .

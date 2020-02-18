@@ -1,0 +1,114 @@
+---
+title: "File S5: Visualizing assembly gaps in E. coli libraries"
+author: "Eric S. Tvedte"
+date: "February 17, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Usage
+
+De novo assemblies of Riptide libraries were followed by alignment of segments to the E. coli reference genome to assess the fragmentation of assemblies relative to conventional Illumina. 
+
+Colors and labels were edited for publication image
+
+```{r input}
+library(ggplot2)
+library(scales)
+```
+
+
+##Plot assembly gaps
+```{r plot, fig.width = 6.5, fig.height = 4, fig.align="center"}
+
+setwd("Y:/RDRIP/etvedte/Denovo_assemblies/SPAdes_denovo/mummer/match_only/")
+rip.path = "Y:/RDRIP/etvedte/Denovo_assemblies/SPAdes_denovo/mummer/match_only/"
+
+fn <- dir(rip.path, pattern = "NCBI_start")
+
+
+Graphing = data.frame()
+
+for(i in 1:length(fn)){
+  data <- read.table(fn[i], header = F, sep = '\t')
+  colnames(data) <- c("start", "end")
+
+  data$avg <- with(data, c(end[1],start[-1]+end[-nrow(data)]) / 2)
+
+  s.fn <- sub(".*221_", "", fn[i])
+  data$tag <- sub("_N.*","", s.fn)
+  
+  f.data <- data[-1, ]
+  Graphing<-rbind(Graphing,f.data)
+}
+
+randrip.path = "Y:/RDRIP/etvedte/Denovo_assemblies/SPAdes_denovo/mummer/match_only/Ecoli-Riptide-1Xrand_NCBI_match.coords"
+
+data <- read.table(randrip.path, header = F, sep = '\t')
+colnames(data) <- c("start", "end")
+
+data$avg <- with(data, c(end[1],start[-1]+end[-nrow(data)]) / 2)
+data$tag <- c("x-Ecoli-Rip-rand")
+
+f.data <- data[-1, ]
+Graphing<-rbind(Graphing,f.data)
+
+
+nrip.path = "Y:/RDRIP/etvedte/Denovo_assemblies/SPAdes_denovo/mummer/match_only/Ecoli_KAPA_NCBI_match_coords.txt"
+
+data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(data) <- c("start", "end")
+
+data$avg <- with(data, c(end[1],start[-1]+end[-nrow(data)]) / 2)
+data$tag <- c("y-Ecoli-nRip")
+
+f.data <- data[-1, ]
+Graphing<-rbind(Graphing,f.data)
+
+nrip.sub.path = "Y:/RDRIP/etvedte/Denovo_assemblies/SPAdes_denovo/mummer/match_only/Ecoli_KAPA_sub0.25_NCBI_match_coords.txt"
+
+data <- read.table(nrip.path, header = F, sep = '\t')
+colnames(data) <- c("start", "end")
+
+data$avg <- with(data, c(end[1],start[-1]+end[-nrow(data)]) / 2)
+data$tag <- c("z-Ecoli-nRip-0.25")
+
+f.data <- data[-1, ]
+Graphing<-rbind(Graphing,f.data)
+
+Graphing <- Graphing[order(Graphing$avg), ]
+write.table(Graphing, file='Y:/RDRIP/etvedte/Denovo_assemblies/SPAdes_denovo/mummer/match_only/Ecoli.assembly.breaks.coordinates.txt', quote=FALSE, sep='\t')
+
+top_theme = theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8), legend.position = "none")
+
+top_theme_legend = theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+#pdf("Y:/RDRIP/etvedte/Denovo_assemblies/SPAdes_denovo/mummer/match_only/Ecoli.RvNR.assemblygaps.pdf", width = 6.5, height = 4)
+
+hp <- ggplot(Graphing, aes(avg, fill = tag)) +
+geom_histogram(binwidth = 10000) + 
+scale_fill_manual(values=c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99",
+                             "#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a",
+                             "#000000", "#ffff99", "#b15928")) +
+scale_x_continuous(label = comma) + 
+xlab("E.coli genome coordinate") + 
+ylab("number of assembly gaps") +
+theme_bw() +
+theme(legend.text = element_text(size=8))
+
+hp
+#dev.off()
+
+```
+
+
+```{r session_info, echo = FALSE}
+sessionInfo()
+#devtools::session_info()
+```
+
+Document processed on: `r Sys.Date()` .
+

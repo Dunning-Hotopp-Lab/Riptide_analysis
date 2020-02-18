@@ -1,0 +1,277 @@
+---
+title: "File S4: Contamination Analysis"
+author: "Eric S. Tvedte"
+date: "February 17, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Usage
+
+Assessment of contamination was assessed by mapping reads from Riptide to a reference sequence containing all genomes used in the experiment. 
+
+##Filter 1: Species assignment, retain primary reads  
+###Load / format data
+```{r setup1}
+in.path = "Y:/RDRIP/etvedte/Contamination/Filter1/final_species_map_compiled.txt"
+file <- read.table(in.path, header = F, sep = '\t')
+
+file[is.na(file)] <- 0
+
+#reorder file based on well number
+x <- file[order(file[12,])]
+#remove well number from file
+x <- x[-c(12), ]
+
+#write out reordered file as sanity check
+write.table(x, file = "Y:/RDRIP/etvedte/Contamination/Filter1/reordered_species_map_compiled.txt", sep = '\t', col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+new.file <- read.table("Y:/RDRIP/etvedte/Contamination/Filter1/reordered_species_map_compiled.txt", header = T, sep = '\t')
+
+new.file[is.na(new.file)] <- 0
+```
+
+###Generate legend for Riptide samples
+```{r legend1, fig.height=6, fig.width=6, fig.align="center"}
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Contamination/Filter1/RIPTIDE_Filter1_speciesmap_legend.pdf")
+
+  #make legend
+  rip.col <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0','#f032e6', '#bcf60c', '#fabebe')
+  plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
+  legend(x = "center", y = NULL, legend = paste(new.file[,1]), text.col = rip.col)
+#optional pdf close
+#dev.off()
+```
+
+###Generate pie charts for Riptide plate wells
+```{r mapfilt1, fig.height=6, fig.width=6, fig.align="center"}
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Contamination/Filter1/RIPTIDE_Filter1_speciesmap_wells_new.pdf", height = 6, width = 6)
+
+  #set up grid for visualization
+  par(mfrow = c(12,12))
+  par(mar = c(0.25,0.25,0.25,0.25))
+
+  #set maxmap variables
+  count90 = 0
+  count95 = 0
+  count99 = 0
+
+  #iterate over each well
+  for (i in 2:97){
+    new.file[,1] <- as.character(new.file[,1])
+  
+    new.file[,i] <- (new.file[,i] / sum(new.file[,i]) * 100)
+
+    new.file[,i] <- round(new.file[,i], 2)
+
+    slices <- new.file[,i]
+    #lbls <- new.file[,1]
+    pct <- round(slices/sum(slices)*100)
+    pie(new.file[,i], labels = NA, col=rip.col, radius = 1)
+    #title(main = toString(colnames(new.file[i])), cex.main = 0.5)
+  
+    #count wells with maxmap criteria
+    if (max(new.file[,i] > 90)){
+      count90 = count90 + 1
+    }
+    if (max(new.file[,i] > 95)){
+      count95 = count95 + 1
+    }
+    if (max(new.file[,i] > 99)){
+      count99 = count99 + 1
+    }              
+  }
+#optional pdf close 
+#dev.off()
+
+#par(new = TRUE)  
+#legend(x = "bottom", y = NULL, legend = paste(file[,1]), text.col = rip.col)
+  
+print(paste("Number of samples with 90% reads mapping a single species =", count90, sep = " "))
+print(paste("Number of samples with 95% reads mapping a single species =", count95, sep = " "))
+print(paste("Number of samples with 99% reads mapping a single species =", count99, sep = " "))
+```
+
+##Filter 2: Species assignment, retain primary, non- multimapped reads  
+
+```{r setup2, echo = FALSE}
+in.path = "Y:/RDRIP/etvedte/Contamination/Filter2/final_species_map_compiled.txt"
+file <- read.table(in.path, header = F, sep = '\t')
+
+file[is.na(file)] <- 0
+
+#reorder file based on well number
+x <- file[order(file[12,])]
+#remove well number from file
+x <- x[-c(12), ]
+
+#write out reordered file as sanity check
+write.table(x, file = "Y:/RDRIP/etvedte/Contamination/Filter2/reordered_species_map_compiled.txt", sep = '\t', col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+new.file <- read.table("Y:/RDRIP/etvedte/Contamination/Filter2/reordered_species_map_compiled.txt", header = T, sep = '\t')
+
+new.file[is.na(new.file)] <- 0
+```
+
+
+```{r legend2, fig.height=6, fig.width=6, fig.align="center", echo=FALSE}
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Contamination/Filter2/RIPTIDE_Filter2_speciesmap_legend.pdf")
+
+  #make legend
+  rip.col <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0','#f032e6', '#bcf60c', '#fabebe')
+  plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
+  legend(x = "center", y = NULL, legend = paste(new.file[,1]), text.col = rip.col)
+#optional pdf close
+#dev.off()
+```
+
+
+```{r mapfilt2, fig.height=6, fig.width=6, fig.align="center", echo=FALSE}
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Contamination/Filter2/RIPTIDE_Filter2_speciesmap_wells_new.pdf", height = 6, width = 6)
+
+  #set up grid for visualization
+  par(mfrow = c(12,12))
+  par(mar = c(0.25,0.25,0.25,0.25))
+
+  #set maxmap variables
+  count90 = 0
+  count95 = 0
+  count99 = 0
+
+  #iterate over each well
+  for (i in 2:97){
+    new.file[,1] <- as.character(new.file[,1])
+  
+    new.file[,i] <- (new.file[,i] / sum(new.file[,i]) * 100)
+
+    new.file[,i] <- round(new.file[,i], 2)
+
+    slices <- new.file[,i]
+    lbls <- new.file[,1]
+    pct <- round(slices/sum(slices)*100)
+    pie(new.file[,i], labels = NA, col=rip.col, radius = 1)
+    #title(main = toString(colnames(new.file[i])), cex.main = 0.5)
+  
+    #count wells with maxmap criteria
+    if (max(new.file[,i] > 90)){
+      count90 = count90 + 1
+    }
+    if (max(new.file[,i] > 95)){
+      count95 = count95 + 1
+    }
+    if (max(new.file[,i] > 99)){
+      count99 = count99 + 1
+    }              
+  }
+#optional pdf close 
+#dev.off()
+
+#par(new = TRUE)  
+#legend(x = "bottom", y = NULL, legend = paste(file[,1]), text.col = rip.col)
+  
+print(paste("Number of samples with 90% reads mapping a single species =", count90, sep = " "))
+print(paste("Number of samples with 95% reads mapping a single species =", count95, sep = " "))
+print(paste("Number of samples with 99% reads mapping a single species =", count99, sep = " "))
+```
+
+##Species assignment, retain primary reads with MAPQ > 30  
+
+```{r setup3, echo = FALSE}
+in.path = "Y:/RDRIP/etvedte/Contamination/Filter3/final_species_map_compiled.txt"
+file <- read.table(in.path, header = F, sep = '\t')
+
+file[is.na(file)] <- 0
+
+#reorder file based on well number
+x <- file[order(file[12,])]
+#remove well number from file
+x <- x[-c(12), ]
+
+#write out reordered file as sanity check
+write.table(x, file = "Y:/RDRIP/etvedte/Contamination/Filter3/reordered_species_map_compiled.txt", sep = '\t', col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+new.file <- read.table("Y:/RDRIP/etvedte/Contamination/Filter3/reordered_species_map_compiled.txt", header = T, sep = '\t')
+
+new.file[is.na(new.file)] <- 0
+```
+
+
+```{r legend3, fig.height=6, fig.width=6, fig.align="center", echo=FALSE}
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Contamination/Filter3/RIPTIDE_Filter3_speciesmap_legend.pdf")
+
+  #make legend
+  rip.col <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0','#f032e6', '#bcf60c', '#fabebe')
+  plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
+  legend(x = "center", y = NULL, legend = paste(new.file[,1]), text.col = rip.col)
+#optional pdf close
+#dev.off()
+```
+
+
+```{r mapfilt3, fig.height=6, fig.width=6, fig.align="center", echo=FALSE}
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/Contamination/Filter3/RIPTIDE_Filter3_speciesmap_wells_new.pdf", height = 6, width = 6)
+
+  #set up grid for visualization
+  par(mfrow = c(12,12))
+  par(mar = c(0.25, 0.25, 0.25, 0.25))
+
+  #set maxmap variables
+  count90 = 0
+  count95 = 0
+  count99 = 0
+
+  #iterate over each well
+  for (i in 2:97){
+    new.file[,1] <- as.character(new.file[,1])
+  
+    new.file[,i] <- (new.file[,i] / sum(new.file[,i]) * 100)
+
+    new.file[,i] <- round(new.file[,i], 2)
+
+    slices <- new.file[,i]
+    lbls <- new.file[,1]
+    pct <- round(slices/sum(slices)*100)
+    pie(new.file[,i], labels = NA, col=rip.col, radius = 1)
+    #title(main = toString(colnames(new.file[i])), cex.main = 0.5)
+  
+    #count wells with maxmap criteria
+    if (max(new.file[,i] > 90)){
+      count90 = count90 + 1
+    }
+    if (max(new.file[,i] > 95)){
+      count95 = count95 + 1
+    }
+    if (max(new.file[,i] > 99)){
+      count99 = count99 + 1
+    }              
+  }
+#optional pdf close 
+#dev.off()
+
+#par(new = TRUE)  
+#legend(x = "bottom", y = NULL, legend = paste(file[,1]), text.col = rip.col)
+  
+print(paste("Number of samples with 90% reads mapping a single species =", count90, sep = " "))
+print(paste("Number of samples with 95% reads mapping a single species =", count95, sep = " "))
+print(paste("Number of samples with 99% reads mapping a single species =", count99, sep = " "))
+```
+
+
+```{r session_info, echo = FALSE}
+sessionInfo()
+#devtools::session_info()
+```
+
+Document processed on: `r Sys.Date()` .

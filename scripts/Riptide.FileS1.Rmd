@@ -1,0 +1,228 @@
+---
+title: 'File S1: Read representation and mapping performance'
+author: "Eric S. Tvedte"
+date: "February 14, 2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Usage
+
+Read composition analyses were performed to determine whether the Riptide library preparation kit produces a reliable sequencing dataset. We visualized patterns of raw read counts across Riptide sample replicates. In addition, we compared read mapping patterns of Riptide datasets versus other Illumina-based methods. 
+
+#Input dataset
+
+The input for the following analysis is a tab-delimited text file, containing the following data columns: sample ID, species, raw read count (number of pairs). All non-BLANK samples also contained counts of mapped left and right reads that met various filtering criteria. Lastly, each species was given a species number assignment according to genome GC content so that patterns could be visualized from low to high GC. 
+
+```{r input}
+library("ggplot2")
+library("ggrepel")
+in.path = "Y:/RDRIP/etvedte/bam/one-to-one/Riptide_read_composition.txt"
+data <- read.table(in.path, header = T, sep = '\t')
+
+```
+
+#Raw read counts
+Here, read pair counts are doubled and plotted for each species. Species numbers were used to discern patterns on the basis of GC content.  
+
+```{r plot raw}
+
+data$species <- as.character(data$species)
+
+
+rip_data <- data[1:96,]
+
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+p1 <- ggplot(rip_data, aes(x=reorder(species, species_numeric), y=total_reads/1000000)) +              labs(x=NULL,y="read count (millions)")
+  
+p1 <- p1 + geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=total_reads/1000000), outlier.shape = NA) +
+       geom_jitter(aes(colour = reorder(species, species_numeric)), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
+       geom_hline(yintercept=7.3, linetype="dashed", color = c('#000000')) + 
+       geom_hline(yintercept=9.2, linetype="dashed", color = c('#000000')) + 
+       scale_color_manual(values=c('#f032e6','#ffe119','#4363d8','#fabebe','#e6194b','#3cb44b','#bcf60c','#f58231','#46f0f0','#911eb4','#000000')) + 
+       theme_bw() + 
+       top_theme
+       
+```
+
+
+
+#Mapped read counts
+Here, BAM files were filtered to remove unmapped and duplicate reads, and the proportion of reads remaining were subsequently plotted for each species. Species numbers were used to sort by GC content.  
+
+Colors of outlined sqares representing non-Riptide datapoints were later edited to match corresponding Riptide samples.
+
+Dots for BLANK wells were removed (not mapped)
+
+```{r plot mapped}
+
+map_data <- data[complete.cases(data),]
+
+map_data$pctmapped <- (map_data$filter_unmap_duplicate / map_data$total_reads) * 100
+map_data$pctprimary <- (map_data$filter_secondary / map_data$total_reads) * 100
+
+rip_map_data <- map_data[1:96,]
+nrip_map_data <- map_data[97:109,]
+
+p2 <- ggplot(rip_map_data, aes(x=reorder(species, species_numeric), y=pctmapped)) + labs(x=NULL,y="percentage of total reads")
+  
+p2 <- p2 + 
+    geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=pctmapped), outlier.shape = NA) +
+    geom_jitter(aes(colour = reorder(species, species_numeric)), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
+    scale_color_manual(values=c('#f032e6','#ffe119','#4363d8','#fabebe','#e6194b','#3cb44b','#bcf60c','#f58231','#46f0f0','#911eb4', '#000000')) + 
+    geom_point(data=nrip_map_data, aes(x=reorder(species, species_numeric), y=pctmapped), shape = 22, fill="lightblue", color="black", size = 0.75) + 
+    ylim(0,100) +
+    theme_bw() + 
+    top_theme
+    
+```
+
+
+#Primary read counts
+Here, BAM files were filtered to remove unmapped, duplicate, and secondary reads, and the proportion of reads remaining were subsequently plotted for each species. Species numbers were used to sort by GC content. 
+
+```{r plot primary}
+
+
+p3 <- ggplot(rip_map_data, aes(x=reorder(species, species_numeric), y=pctprimary)) + labs(x= NULL,y="percentage of total reads")
+    
+p3 <- p3 + 
+      geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=pctprimary), outlier.shape = NA) +
+      geom_jitter(aes(colour = reorder(species, species_numeric)), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
+         scale_color_manual(values=c('#f032e6','#ffe119','#4363d8','#fabebe','#e6194b','#3cb44b','#bcf60c','#f58231','#46f0f0','#911eb4', '#000000')) + #deleted color 000000
+      geom_point(data=nrip_map_data, aes(x=reorder(species, species_numeric), y=pctprimary), shape = 22, fill="lightblue", color="black", size = 0.75) + 
+      ylim(0,100) +
+      theme_bw() + 
+      theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+      axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8)) +
+      scale_x_discrete(labels=c("Acinetobacter" = "Acinetobacter (39%)", 
+                                     "Aspergillus" = "Aspergillus (50%)",
+                                     "Brugia" = "Brugia (28%)",
+                                     "Cryptosporidium" = "Cryptosporidium (30%)",
+                                     "E. coli" = "E. coli (51%)",
+                                     "Klebsiella" = "Klebsiella (57%)",
+                                     "Plasmodium" = "Plasmodium (19%)",
+                                     "pB171" = "pB171 (51%)",
+                                     "Shigella" = "Shigella (51%)",
+                                     "Theileria" = "Theileria (34%)",
+                                     "BLANK" = "BLANK"))  
+  
+```
+
+#Visualization
+Colors of outlined sqares representing non-Riptide datapoints were edited to match corresponding Riptide samples.
+
+Dots for BLANK wells were removed (not mapped)
+
+Warnings indicate BLANK values that were randomly jittered outside the scale of the y-axis (0,100)
+```{r vis, fig.height=9, fig.width=3, fig.align="center"}
+library("gtable")
+library("grid")
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/Riptide_readcomposition.pdf", width = 3, height = 9)
+
+  g1 <- ggplotGrob(p1)
+  g2 <- ggplotGrob(p2)
+  g3 <- ggplotGrob(p3)
+  
+  g <- rbind(g1, g2, g3, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths, g3$widths)
+  grid.newpage()
+  grid.draw(g)
+
+#pdf close 
+#dev.off()
+```
+
+Using the same scripts, plots were generated for additional Acinetobacter samples on Riptide plate 2. 
+
+
+```{r acineto}
+
+acineto.path = "Y:/RDRIP/etvedte/bam/one-to-one/Riptide_plate2_read_composition.txt"
+ac_data <- read.table(acineto.path, header = T, sep = '\t')
+
+top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
+
+p4 <- ggplot(ac_data, aes(x=species, y=total_reads/1000000)) + labs(x=NULL,y="read count (millions)")
+
+p4 <- p4 + geom_boxplot(mapping=aes(x=species, y=total_reads/1000000), outlier.shape = NA) +
+     geom_jitter(aes(colour = species), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
+     scale_color_manual(values=c('#e6194b')) + 
+     ylim(0,30) +
+     theme_bw() + 
+     top_theme
+
+
+
+```
+
+
+```{r mapped reads Ab}
+
+
+map_data <- ac_data[complete.cases(ac_data),]
+
+map_data$pctmapped <- (map_data$filter_unmap_duplicate / map_data$total_reads) * 100
+map_data$pctprimary <- (map_data$filter_secondary / map_data$total_reads) * 100
+
+p5 <- ggplot(map_data, aes(x=species, y=pctmapped)) + labs(x=NULL,y="percentage of total reads")
+  
+p5 <- p5 + 
+    geom_boxplot(mapping=aes(x=species, y=pctmapped), outlier.shape = NA) +
+    geom_jitter(aes(colour = species), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
+    scale_color_manual(values=c('#e6194b')) +
+    ylim(0,100) +
+    theme_bw() + 
+    top_theme
+
+
+p6 <- ggplot(map_data, aes(x=species, y=pctprimary)) + labs(x=NULL,y="percentage of total reads")
+  
+p6 <- p6 + 
+    geom_boxplot(mapping=aes(x=species, y=pctprimary), outlier.shape = NA) +
+    geom_jitter(aes(colour = species), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
+    scale_color_manual(values=c('#e6194b')) +
+    ylim(0,100) +
+    theme_bw() + 
+    theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+    axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8)) +
+    scale_x_discrete(labels=c("Acinetobacter" = "Acinetobacter"))  
+
+
+```
+
+```{r vis.2, fig.height=9, fig.width=1.5, fig.align="center"}
+library("gtable")
+library("grid")
+
+#optional pdf output
+#pdf("Y:/RDRIP/etvedte/bam/one-to-one/Riptide_plate2_readcomposition.pdf", width = 1.5, height = 9)
+
+  g4 <- ggplotGrob(p4)
+  g5 <- ggplotGrob(p5)
+  g6 <- ggplotGrob(p6)
+  
+  g <- rbind(g4, g5, g6, size = "first")
+  g$widths <- unit.pmax(g4$widths, g5$widths, g6$widths)
+  grid.newpage()
+  grid.draw(g)
+
+#pdf close 
+#dev.off()
+```
+
+
+```{r session_info, echo = FALSE}
+sessionInfo()
+#devtools::session_info()
+```
+
+Document processed on: `r Sys.Date()` .
