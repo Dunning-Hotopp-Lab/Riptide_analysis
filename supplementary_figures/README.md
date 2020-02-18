@@ -10,5 +10,6 @@
 **Figure S10. Sequencing depth histograms of Cryptosporidium parvum libraries**  
 **Figure S11. Sequencing depth histograms of Shigella boydii libraries**  
 **Figure S12. Assessment of GC bias in Riptide and non-Riptide libraries**  
-**Figure S13. Contamination assessment of Riptide samples after removal of multimapped reads**  
-**Figure S14. Contamination assessment of Riptide samples after removal of low MAPQ reads**  
+**Figure S13. Contamination assessment of Riptide samples after removal of unmapped and duplicate reads**  
+**Figure S14. Contamination assessment of Riptide samples after removal of multimapped reads**  
+**Figure S15. Contamination assessment of Riptide samples after removal of low MAPQ reads**  
