@@ -32,8 +32,6 @@ samtools sort -m 2G -o sorted.bam mapped.bam
 java -Xmx2g -jar picard.jar MarkDuplicates I=sorted.bam O=dupsmarked.bam M=dupsmetrics.txt  
 *Count reads, filtering unmapped and duplicate*  
 samtools view -F 4 -F 1024 -c dupsmarked.bam  
-*Visualize counts*  
-Run scripts/Riptide.FileS1.Rmd - mapped read counts using sample_data_files/raw+mapped_reads.txt 
 *Count reads, filtering unmapped, duplicate, secondary*  
 samtools view -F 4 -F 256 -F 1024 -F 2048 -c dupsmarked.bam  
 *Visualize counts*  
