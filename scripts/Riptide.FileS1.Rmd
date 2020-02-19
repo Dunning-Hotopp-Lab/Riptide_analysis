@@ -54,45 +54,25 @@ p1 <- p1 + geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=total
 
 
 #Mapped read counts
-Here, BAM files were filtered to remove unmapped and duplicate reads, and the proportion of reads remaining were subsequently plotted for each species. Species numbers were used to sort by GC content.  
+Here, BAM files were filtered to remove unmapped, duplicate, and secondary reads, and the proportion of reads remaining were subsequently plotted for each species. Species numbers were used to sort by GC content. 
+ 
 
 Colors of outlined sqares representing non-Riptide datapoints were later edited to match corresponding Riptide samples.
 
 Dots for BLANK wells were removed (not mapped)
 
-```{r plot mapped}
+
+```{r plot primary}
 
 map_data <- data[complete.cases(data),]
-
-map_data$pctmapped <- (map_data$filter_unmap_duplicate / map_data$total_reads) * 100
 map_data$pctprimary <- (map_data$filter_secondary / map_data$total_reads) * 100
 
 rip_map_data <- map_data[1:96,]
 nrip_map_data <- map_data[97:109,]
 
-p2 <- ggplot(rip_map_data, aes(x=reorder(species, species_numeric), y=pctmapped)) + labs(x=NULL,y="percentage of total reads")
-  
+p2 <- ggplot(rip_map_data, aes(x=reorder(species, species_numeric), y=pctprimary)) + labs(x= NULL,y="percentage of total reads")
+    
 p2 <- p2 + 
-    geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=pctmapped), outlier.shape = NA) +
-    geom_jitter(aes(colour = reorder(species, species_numeric)), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
-    scale_color_manual(values=c('#f032e6','#ffe119','#4363d8','#fabebe','#e6194b','#3cb44b','#bcf60c','#f58231','#46f0f0','#911eb4', '#000000')) + 
-    geom_point(data=nrip_map_data, aes(x=reorder(species, species_numeric), y=pctmapped), shape = 22, fill="lightblue", color="black", size = 0.75) + 
-    ylim(0,100) +
-    theme_bw() + 
-    top_theme
-    
-```
-
-
-#Primary read counts
-Here, BAM files were filtered to remove unmapped, duplicate, and secondary reads, and the proportion of reads remaining were subsequently plotted for each species. Species numbers were used to sort by GC content. 
-
-```{r plot primary}
-
-
-p3 <- ggplot(rip_map_data, aes(x=reorder(species, species_numeric), y=pctprimary)) + labs(x= NULL,y="percentage of total reads")
-    
-p3 <- p3 + 
       geom_boxplot(mapping=aes(x=reorder(species, species_numeric), y=pctprimary), outlier.shape = NA) +
       geom_jitter(aes(colour = reorder(species, species_numeric)), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
          scale_color_manual(values=c('#f032e6','#ffe119','#4363d8','#fabebe','#e6194b','#3cb44b','#bcf60c','#f58231','#46f0f0','#911eb4', '#000000')) + #deleted color 000000
@@ -121,7 +101,7 @@ Colors of outlined sqares representing non-Riptide datapoints were edited to mat
 Dots for BLANK wells were removed (not mapped)
 
 Warnings indicate BLANK values that were randomly jittered outside the scale of the y-axis (0,100)
-```{r vis, fig.height=9, fig.width=3, fig.align="center"}
+```{r vis, fig.height=6, fig.width=3, fig.align="center"}
 library("gtable")
 library("grid")
 
@@ -130,10 +110,9 @@ library("grid")
 
   g1 <- ggplotGrob(p1)
   g2 <- ggplotGrob(p2)
-  g3 <- ggplotGrob(p3)
   
-  g <- rbind(g1, g2, g3, size = "first")
-  g$widths <- unit.pmax(g1$widths, g2$widths, g3$widths)
+  g <- rbind(g1, g2, size = "first")
+  g$widths <- unit.pmax(g1$widths, g2$widths)
   grid.newpage()
   grid.draw(g)
 
@@ -151,9 +130,9 @@ ac_data <- read.table(acineto.path, header = T, sep = '\t')
 
 top_theme = theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.y = element_text(size = 8))
 
-p4 <- ggplot(ac_data, aes(x=species, y=total_reads/1000000)) + labs(x=NULL,y="read count (millions)")
+p3 <- ggplot(ac_data, aes(x=species, y=total_reads/1000000)) + labs(x=NULL,y="read count (millions)")
 
-p4 <- p4 + geom_boxplot(mapping=aes(x=species, y=total_reads/1000000), outlier.shape = NA) +
+p3 <- p3 + geom_boxplot(mapping=aes(x=species, y=total_reads/1000000), outlier.shape = NA) +
      geom_jitter(aes(colour = species), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
      scale_color_manual(values=c('#e6194b')) + 
      ylim(0,30) +
@@ -170,23 +149,11 @@ p4 <- p4 + geom_boxplot(mapping=aes(x=species, y=total_reads/1000000), outlier.s
 
 map_data <- ac_data[complete.cases(ac_data),]
 
-map_data$pctmapped <- (map_data$filter_unmap_duplicate / map_data$total_reads) * 100
 map_data$pctprimary <- (map_data$filter_secondary / map_data$total_reads) * 100
 
-p5 <- ggplot(map_data, aes(x=species, y=pctmapped)) + labs(x=NULL,y="percentage of total reads")
+p4 <- ggplot(map_data, aes(x=species, y=pctprimary)) + labs(x=NULL,y="percentage of total reads")
   
-p5 <- p5 + 
-    geom_boxplot(mapping=aes(x=species, y=pctmapped), outlier.shape = NA) +
-    geom_jitter(aes(colour = species), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
-    scale_color_manual(values=c('#e6194b')) +
-    ylim(0,100) +
-    theme_bw() + 
-    top_theme
-
-
-p6 <- ggplot(map_data, aes(x=species, y=pctprimary)) + labs(x=NULL,y="percentage of total reads")
-  
-p6 <- p6 + 
+p4 <- p4 + 
     geom_boxplot(mapping=aes(x=species, y=pctprimary), outlier.shape = NA) +
     geom_jitter(aes(colour = species), show.legend = FALSE, width = 0.05, height = 0.05, shape = 16, size = 0.75) +
     scale_color_manual(values=c('#e6194b')) +
@@ -199,19 +166,18 @@ p6 <- p6 +
 
 ```
 
-```{r vis.2, fig.height=9, fig.width=1.5, fig.align="center"}
+```{r vis.2, fig.height=6, fig.width=1.5, fig.align="center"}
 library("gtable")
 library("grid")
 
 #optional pdf output
 #pdf("Y:/RDRIP/etvedte/bam/one-to-one/Riptide_plate2_readcomposition.pdf", width = 1.5, height = 9)
 
+  g3 <- ggplotGrob(p3)
   g4 <- ggplotGrob(p4)
-  g5 <- ggplotGrob(p5)
-  g6 <- ggplotGrob(p6)
-  
-  g <- rbind(g4, g5, g6, size = "first")
-  g$widths <- unit.pmax(g4$widths, g5$widths, g6$widths)
+
+  g <- rbind(g3, g4, size = "first")
+  g$widths <- unit.pmax(g3$widths, g4$widths)
   grid.newpage()
   grid.draw(g)
 
