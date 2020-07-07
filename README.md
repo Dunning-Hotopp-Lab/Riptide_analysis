@@ -2,26 +2,50 @@
 
 Eric S. Tvedte
 
-2020-2-18
+2020-07-07
 
 The repository contains Supplementary Data for the manuscript, including Tables, Figures, and Files.
 
 ## Table of Contents
-1. [Read representation analysis](#read.rep)
-2. [Genome coverage analysis](#cov)
-3. [Riptide contamination analysis](#contam)
-4. [De novo assemblies](#denovo)
+1. [Read representation](#read.rep)
+2. [Riptide contamination analysis](#contam)
+3. [Read mapping performance and genome coverage analysis](#map.cov)
+4. [De novo assembly](#denovo)
 5. [Metagenome analysis](#meta)
 6. [System requirements](#system)
 7. [Installation](#install)
 8. [GitHub repository contents](#github)
 
-### Read representation analysis <a name="read.rep"></a>
+### Read representation <a name="read.rep"></a>
 **Raw read counts**  
-*fastqc*  
-Read pair counts doubled to determine total reads for each library.  
-*Visualize counts*  
-Run scripts/Riptide.FileS1.Rmd using sample_data_files/raw+mapped_reads.txt
+Run scripts/Riptide.FileS1.Rmd using sample_data_files/raw_reads.txt
+
+### Riptide contamination analysis <a name="contam"></a>  
+**Filter 1: Species assignment, retain primary reads**
+*Map reads to reference containing combined genomes from all organisms in Riptide experiment*  
+bwa mem -k 23 -M combined.reference.fasta R1.fastq.gz R2.fastq.gz | samtools view -bho mapped.bam  
+*Sort BAM with samtools*  
+samtools sort -m 2G -o sorted.bam mapped.bam  
+*Mark duplicates with PicardTools*  
+java -Xmx2g -jar picard.jar MarkDuplicates I=sorted.bam O=dupsmarked.bam M=dupsmetrics.txt  
+*Assign reads to species*  
+samtools view -F 4 -F 256 -F 1024 -F 2048 -bho primary.bam dupsmarked.bam  
+samtools view primary.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
+Species assignment files were compiled for all libraries, with an additional row added containing numbers corresponding to the well position of each sample on the Riptide plate  
+*Visualization*  
+Run scripts/Riptide.FileS4 using sample_data_files/contamination.txt  
+
+**Filter2: Species assignment, retain primary, non- multimapped reads**  
+samtools view -h -F 4 -F 256 -F 1024 -F 2048 dupsmarked.bam | grep -v -e 'XA:Z:' -e 'SA:Z:' | samtools view -bh - > filter_multimap.bam  
+samtools view filter_multimap.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
+Compilation of data and visualization was performed as described above  
+
+**Filter 3: Species assignment, retain primary reads with MAPQ > 30** 
+samtools view -h -F 4 -F 256 -F 1024 -F 2048 -q 30 dupsmarked.bam | samtools view -bh - > filter_lowMAPQ.bam  
+samtools view filter_lowMAPQ.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
+Compilation of data and visualization was performed as described above
+
+### Genome coverage analysis <a name="map.cov"></a>  
 
 **Mapped read counts**  
 *Map reads with bwa*  
@@ -37,21 +61,6 @@ samtools view -F 4 -F 256 -F 1024 -F 2048 -c dupsmarked.bam
 *Visualize counts*  
 Run scripts/Riptide.FileS1.Rmd using sample_data_files/raw+mapped_reads.txt
 
-**Quantification of indels in read libraries**
-*Generate filtered BAM to retain primary reads*  
-samtools view -F 4 -F 256 -F 1024 -F 2048 -bho primary.bam dupsmarked.bam   
-*Generate pileup of mapped reads using samtools*  
-samtools mpileup -R -d 0 -f reference.fasta primaryreads.bam > mpileup.txt
-*Calculate insertions in pileup*  
-cat mpileup.txt | awk '{print $5}' | grep -o '\+[0-9]\+[ACGTNacgtn]\+' | wc -l > insertion_counts.txt
-*Calculate deletions in pileup* 
-cat mpileup.txt | awk '{print $5}' | grep -o '\-[0-9]\+[ACGTNacgtn]\+' | wc -l > deletion_counts.txt
-*Truncate Theileria 2x300 NEBNext library*  
-fastx_trimmer -l 150 -i Tp_NEBNExt_fwd.fastq -o Tp_NEBNExt_trimmed_fwd.fastq  
-fastx_trimmer -l 150 -i Tp_NEBNExt_rev.fastq -o Tp_NEBNExt_trimmed_rev.fastq  
-Perform mapping, pileup, calculations as described above.
-
-### Genome coverage analysis <a name="cov"></a>  
 **Histograms of genome breadth and depth of coverage**  
 *Generate filtered BAM to retain primary reads*  
 samtools view -F 4 -F 256 -F 1024 -F 2048 -bho primary.bam dupsmarked.bam  
@@ -81,31 +90,6 @@ echo -e "scaffold\twindow_start\twindow_end\tGC_content\tmode_depth" > header.tx
 cat header.txt data.txt | sed -e "s/ /\t/g" > depth+GCstats.txt  
 *Visualize depth vs. GC*
 Run scripts/Riptide.FileS3.Rmd using sample_data_files/Acinetobacter_depthvsGC.txt
-
-### Riptide contamination analysis <a name="contam"></a>  
-**Filter 1: Species assignment, retain primary reads**
-*Map reads to reference containing combined genomes from all organisms in Riptide experiment*  
-bwa mem -k 23 -M combined.reference.fasta R1.fastq.gz R2.fastq.gz | samtools view -bho mapped.bam  
-*Sort BAM with samtools*  
-samtools sort -m 2G -o sorted.bam mapped.bam  
-*Mark duplicates with PicardTools*  
-java -Xmx2g -jar picard.jar MarkDuplicates I=sorted.bam O=dupsmarked.bam M=dupsmetrics.txt  
-*Assign reads to species*  
-samtools view -F 4 -F 256 -F 1024 -F 2048 -bho primary.bam dupsmarked.bam  
-samtools view primary.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
-Species assignment files were compiled for all libraries, with an additional row added containing numbers corresponding to the well position of each sample on the Riptide plate  
-*Visualization*  
-Run scripts/Riptide.FileS4 using sample_data_files/contamination.txt  
-
-**Filter2: Species assignment, retain primary, non- multimapped reads**  
-samtools view -h -F 4 -F 256 -F 1024 -F 2048 dupsmarked.bam | grep -v -e 'XA:Z:' -e 'SA:Z:' | samtools view -bh - > filter_multimap.bam  
-samtools view filter_multimap.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
-Compilation of data and visualization was performed as described above  
-
-**Filter 3: Species assignment, retain primary reads with MAPQ > 30** 
-samtools view -h -F 4 -F 256 -F 1024 -F 2048 -q 30 dupsmarked.bam | samtools view -bh - > filter_lowMAPQ.bam  
-samtools view filter_lowMAPQ.bam | awk -F "\t" '{print $3}' | sort -n | sed "s/\_scaf.\*//g" | uniq -c | awk '{print $2"\t"$1}' > speciesmap.txt  
-Compilation of data and visualization was performed as described above
 
 ### De novo assemblies <a name="denovo"></a>  
 **De novo assembly of readsets with SPAdes**  
