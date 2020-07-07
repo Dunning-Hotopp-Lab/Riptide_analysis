@@ -1,0 +1,101 @@
+species	plate	species_numeric	strain/sample	total_reads
+Acinetobacter baumannii	1	5	25493-3	134216
+Acinetobacter baumannii	1	5	25493-3	158866
+Acinetobacter baumannii	1	5	25493-3	160304
+Acinetobacter baumannii	1	5	25493-3	277136
+Acinetobacter baumannii	1	5	25493-3	179924
+Acinetobacter baumannii	1	5	25493-3	590608
+Acinetobacter baumannii	1	5	25493-3	266446
+Acinetobacter baumannii	1	5	25493-3	162520
+Aspergillus fumigatus	1	6	925	7452138
+Aspergillus fumigatus	1	6	925	8736918
+Aspergillus fumigatus	1	6	T8015994	2180442
+Aspergillus fumigatus	1	6	H7810724	8331602
+Aspergillus fumigatus	1	6	H7810724	10928594
+Aspergillus fumigatus	1	6	H7810724	13161240
+Aspergillus fumigatus	1	6	925	10640410
+Aspergillus fumigatus	1	6	928	5222884
+Aspergillus fumigatus	1	6	925	6550750
+Aspergillus fumigatus	1	6	925	9104160
+Aspergillus fumigatus	1	6	H7810724	6432062
+Aspergillus fumigatus	1	6	925	6807742
+Aspergillus fumigatus	1	6	928	7880108
+Aspergillus fumigatus	1	6	925	9507192
+Aspergillus fumigatus	1	6	H7810724	7981366
+Aspergillus fumigatus	1	6	H7810724	9167536
+Aspergillus fumigatus	1	6	H7810724	8181902
+Aspergillus fumigatus	1	6	H7810724	890282
+Aspergillus fumigatus	1	6	T8015994	7770182
+Aspergillus fumigatus	1	6	928	6018308
+Aspergillus fumigatus	1	6	H7810724	11277482
+Aspergillus fumigatus	1	6	928	6765014
+Aspergillus fumigatus	1	6	928	4668600
+Aspergillus fumigatus	1	6	928	9766540
+Aspergillus fumigatus	1	6	H7810724	12088788
+Aspergillus fumigatus	1	6	T8015994	5942962
+Aspergillus fumigatus	1	6	925	9889862
+Aspergillus fumigatus	1	6	H7810724	15549806
+Aspergillus fumigatus	1	6	928	6898118
+Aspergillus fumigatus	1	6	928	7731102
+Aspergillus fumigatus	1	6	H7810724	10711348
+Aspergillus fumigatus	1	6	T8015994	18373610
+Brugia pahangi	1	2	FR3	5909664
+Brugia pahangi	1	2	FR3	13007846
+Brugia pahangi	1	2	FR3	28747646
+Brugia pahangi	1	2	FR3	8203162
+Brugia pahangi	1	2	FR3	11374734
+Brugia pahangi	1	2	FR3	18729918
+Brugia pahangi	1	2	FR3	13441560
+Brugia pahangi	1	2	FR3	8991414
+Brugia pahangi	1	2	FR3	16156114
+Brugia pahangi	1	2	FR3	10990458
+Cryptosporidium parvum	1	3	TU114	996130
+Cryptosporidium parvum	1	3	TU114	1190004
+Cryptosporidium parvum	1	3	TU114	2684310
+Escherichia coli	1	8	HS	9984774
+Escherichia coli	1	8	HS	10835604
+Escherichia coli	1	8	HS	7850488
+Escherichia coli	1	8	HS	10226192
+Escherichia coli	1	8	HS	7328106
+Escherichia coli	1	8	HS	8550536
+Escherichia coli	1	8	HS	6108222
+Escherichia coli	1	8	HS	8332836
+Escherichia coli	1	8	HS	6571200
+Escherichia coli	1	8	HS	7064332
+Klebsiella pneumoniae	1	10	4006	4187648
+Klebsiella pneumoniae	1	10	4006	3225364
+Klebsiella pneumoniae	1	10	4006	4572182
+Klebsiella pneumoniae	1	10	4006	10235078
+pB171	1	9	B171	5427278
+pB171	1	9	B171	5171848
+pB171	1	9	B171	10421330
+pB171	1	9	B171	7405522
+Plasmodium falciparum	1	1	NF54	18397556
+Plasmodium falciparum	1	1	NF54	6858700
+Plasmodium falciparum	1	1	NF54	6839944
+Plasmodium falciparum	1	1	NF54	7440280
+Plasmodium falciparum	1	1	NF54	6124916
+Plasmodium falciparum	1	1	NF54	10411266
+Shigella boydii	1	7	5216-82	394606
+Shigella boydii	1	7	5216-82	418752
+Shigella boydii	1	7	5216-82	493594
+Shigella boydii	1	7	5216-82	275854
+Shigella boydii	1	7	5216-82	395988
+Shigella boydii	1	7	5216-82	405780
+Shigella boydii	1	7	5216-82	277078
+Shigella boydii	1	7	5216-82	306266
+Theileria parva	1	4	Muguga	11218338
+Theileria parva	1	4	Muguga	10036518
+Theileria parva	1	4	Muguga	11865312
+Theileria parva	1	4	Muguga	12112208
+BLANK	1	11	NA	7022
+BLANK	1	11	NA	2272
+BLANK	1	11	NA	2644
+BLANK	1	11	NA	172294
+BLANK	1	11	NA	725588
+BLANK	1	11	NA	142184
+BLANK	1	11	NA	25670
+Acinetobacter baumannii	2	5	Ab1022959	3981684
+Acinetobacter baumannii	2	5	Ab959073	2553298
+Acinetobacter baumannii	2	5	Ab99063	5095172
+Acinetobacter baumannii	2	5	Ab11126	10273532
